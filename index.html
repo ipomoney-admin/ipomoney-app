@@ -3,141 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPOMoney - iPhone Glass Edition</title>
+    <title>IPOMoney - Ultra Glass</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { 
-            /* Deep vibrant gradient taaki glass effect chamke */
-            background: linear-gradient(135deg, #c3dafe 0%, #fee2e2 50%, #d1fae5 100%); 
-            min-height: 100vh;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: #1e293b;
-        }
+        body { background: #f8fafc; overflow-x: hidden; font-family: 'Inter', sans-serif; }
+        
+        /* Background decorative bubbles for Glass effect */
+        .bubble { position: fixed; border-radius: 50%; filter: blur(60px); z-index: -1; opacity: 0.6; }
+        .b1 { width: 400px; height: 400px; background: #6366f1; top: -100px; right: -100px; }
+        .b2 { width: 350px; height: 350px; background: #f472b6; bottom: -50px; left: -50px; }
+        .b3 { width: 300px; height: 300px; background: #fbbf24; top: 40%; left: 20%; }
+
         .iphone-glass { 
-            /* Minimal white, high transparency */
-            background: rgba(255, 255, 255, 0.22); 
-            /* High blur for that premium frosted look */
-            backdrop-filter: blur(25px) saturate(180%); 
-            -webkit-backdrop-filter: blur(25px) saturate(180%);
-            /* Thin "Light-catching" border */
-            border: 1px solid rgba(255, 255, 255, 0.45);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
-            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.15); 
+            backdrop-filter: blur(25px) saturate(200%); 
+            -webkit-backdrop-filter: blur(25px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+            border-radius: 32px;
         }
-        .gradient-text {
-            background: linear-gradient(135deg, #4338ca, #db2777);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .chart-container { height: 250px; position: relative; }
+        .gradient-text { background: linear-gradient(to right, #4338ca, #db2777); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     </style>
 </head>
-<body class="p-6 md:p-12">
-    <div class="max-w-7xl mx-auto">
-        <header class="text-center py-16">
-            <h1 class="text-7xl font-extrabold mb-4 gradient-text tracking-tighter">IPOMoney</h1>
-            <p class="text-slate-600 text-xl font-medium">Smart Data. Premium Design. Real-time Results.</p>
+<body class="p-8">
+    <div class="bubble b1"></div><div class="bubble b2"></div><div class="bubble b3"></div>
+
+    <div class="max-w-6xl mx-auto">
+        <header class="text-center py-10">
+            <h1 class="text-6xl font-black gradient-text mb-4">IPOMoney</h1>
+            <p class="text-slate-600 font-semibold uppercase tracking-[0.2em] text-xs">Premium Portfolio Suite</p>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-20">
-            <div class="iphone-glass p-10">
-                <h3 class="text-xl font-extrabold text-slate-800 mb-8 uppercase tracking-widest">Market Share</h3>
-                <div class="chart-container">
-                    <canvas id="pieChart"></canvas>
-                </div>
-            </div>
-            <div class="iphone-glass p-10">
-                <h3 class="text-xl font-extrabold text-slate-800 mb-8 uppercase tracking-widest">Listing Velocity</h3>
-                <div class="chart-container">
-                    <canvas id="barChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="flex items-center justify-between mb-12 px-2">
-            <h2 class="text-4xl font-extrabold text-slate-900 tracking-tight">Active IPOs</h2>
-            <span class="bg-white/40 backdrop-blur-md px-4 py-2 rounded-2xl text-sm font-bold border border-white/50 shadow-sm">17 TRACKING</span>
-        </div>
-
-        <div id="ipo-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div id="ipo-list" class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
             </div>
     </div>
 
     <script>
-        // Supabase Setup
         const SUPABASE_URL = "https://blwjuzmvrvtfklthvfoz.supabase.co";
         const SUPABASE_KEY = "sb_publishable_eJVOHdhBG6Rbbivp8vogLQ_8ADKpsOY";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        async function fetchLiveIPOs() {
-            const { data: ipos, error } = await _supabase.from('ipos').select('*');
+        async function load() {
+            const { data: ipos } = await _supabase.from('ipos').select('*');
             const container = document.getElementById('ipo-list');
-            
-            if (ipos) {
-                container.innerHTML = '';
-                ipos.forEach((ipo) => {
-                    container.innerHTML += `
-                        <div class="iphone-glass p-8 hover:scale-105 transition-all duration-500 group cursor-pointer border-white/60">
-                            <div class="flex justify-between items-start mb-8">
-                                <div class="w-14 h-14 bg-white/50 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-inner">
-                                    <svg class="w-7 h-7 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                                    <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Active</span>
-                                </div>
-                            </div>
-                            <h2 class="text-2xl font-extrabold text-slate-900 leading-tight mb-2 group-hover:text-indigo-600 transition-colors">${ipo.name}</h2>
-                            <p class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-8 opacity-60">${ipo.category || 'Mainboard'}</p>
-                            
-                            <div class="mt-4 flex items-center justify-between">
-                                <span class="text-indigo-600 font-black text-xs">VIEW DETAILS</span>
-                                <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
-                                </div>
-                            </div>
+            if(ipos) {
+                container.innerHTML = ipos.map(ipo => `
+                    <div class="iphone-glass p-8 hover:bg-white/30 transition-all duration-300">
+                        <div class="w-10 h-10 iphone-glass flex items-center justify-center mb-6 border-white/60">
+                            <div class="w-2 h-2 bg-indigo-500 rounded-full"></div>
                         </div>
-                    `;
-                });
+                        <h3 class="text-2xl font-black text-slate-800 mb-2">${ipo.name}</h3>
+                        <p class="text-slate-500 text-xs font-bold tracking-widest uppercase">${ipo.category || 'Equity'}</p>
+                        <div class="mt-8 flex items-center justify-between">
+                            <span class="text-[10px] font-black py-1 px-3 iphone-glass text-indigo-700">LIVE NOW</span>
+                            <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                        </div>
+                    </div>
+                `).join('');
             }
         }
-
-        // 3D Styled Charts
-        const pieCtx = document.getElementById('pieChart').getContext('2d');
-        new Chart(pieCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Mainboard', 'SME', 'Other'],
-                datasets: [{
-                    data: [65, 25, 10],
-                    backgroundColor: ['#4f46e5', '#ec4899', '#94a3b8'],
-                    hoverOffset: 30,
-                    borderWidth: 0,
-                    borderRadius: 10
-                }]
-            },
-            options: { maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom', labels: { font: { weight: '800' }, usePointStyle: true, padding: 30 } } } }
-        });
-
-        const barCtx = document.getElementById('barChart').getContext('2d');
-        new Chart(barCtx, {
-            type: 'bar',
-            data: {
-                labels: ['W1', 'W2', 'W3', 'W4'],
-                datasets: [{
-                    data: [12, 19, 8, 15],
-                    backgroundColor: '#6366f1',
-                    borderRadius: 20,
-                    barThickness: 15
-                }]
-            },
-            options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
-        });
-
-        fetchLiveIPOs();
+        load();
     </script>
 </body>
 </html>
