@@ -11,7 +11,7 @@ supabase = create_client(url, key)
 def get_ipo_data():
     headers = {'User-Agent': 'Mozilla/5.0'}
     # Aapka working URL
-    target_url = "https://www.ipowatch.in/ipo-grey-market-premium-gmp-2024/"
+    target_url = "https://www.ipowatch.in/"
     
     try:
         r = requests.get(target_url, headers=headers, timeout=15)
