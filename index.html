@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium IPO Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background-color: #f0f4f8; font-family: 'Segoe UI', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.3); }
+        .premium-card { transition: transform 0.3s ease; }
+        .premium-card:hover { transform: translateY(-5px); }
+    </style>
+</head>
+<body class="p-6 md:p-12">
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-12 text-center">
+            <h1 class="text-4xl font-bold text-slate-800 mb-2">IPO Insights Dashboard</h1>
+            <p class="text-slate-500">Real-time Premium Market Analytics</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            <div class="glass p-6 shadow-xl">
+                <h3 class="text-lg font-semibold mb-4 text-slate-700">IPO Distribution (Pie)</h3>
+                <canvas id="pieChart"></canvas>
+            </div>
+            <div class="glass p-6 shadow-xl">
+                <h3 class="text-lg font-semibold mb-4 text-slate-700">Recent Growth (Bar)</h3>
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+
+        <h2 class="text-2xl font-semibold mb-6 text-slate-700">Active Listings</h2>
+        <div id="ipo-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+    </div>
+
+    <script>
+        // Placeholder data for UI feel (Abhi ke liye)
+        const ipoData = ["SME IPO 1", "Mainboard 2", "Tech IPO 3"]; 
+        
+        // Bar Chart
+        new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+                datasets: [{ label: 'IPOs Listed', data: [12, 19, 3, 5], backgroundColor: '#93c5fd' }]
+            },
+            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+
+        // Pie Chart
+        new Chart(document.getElementById('pieChart'), {
+            type: 'pie',
+            data: {
+                labels: ['Mainboard', 'SME', 'Debt'],
+                datasets: [{ data: [10, 7, 3], backgroundColor: ['#bfdbfe', '#86efac', '#fde68a'] }]
+            }
+        });
+
+        // Loop to create Cards
+        const container = document.getElementById('ipo-container');
+        // Note: Next step mein hum isse Supabase se connect karenge
+        for(let i=0; i<17; i++) {
+            container.innerHTML += `
+                <div class="glass p-6 premium-card shadow-md hover:shadow-2xl">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full mb-4 flex items-center justify-center text-blue-500 font-bold">#${i+1}</div>
+                    <h4 class="font-bold text-slate-800 text-xl">Loading IPO...</h4>
+                    <p class="text-slate-500 text-sm mt-2">Connecting to Supabase...</p>
+                    <div class="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center text-xs font-semibold text-blue-600">
+                        <span>LIVE NOW</span>
+                        <span class="bg-blue-50 px-2 py-1 rounded">DETAILS</span>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
