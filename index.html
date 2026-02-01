@@ -3,114 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPOMoney - Ultra Glass Edition</title>
+    <title>Premium IPO Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Soothing & Deep background taaki glass dikhe */
-        body { 
-            background: #f0f2f5; 
-            min-height: 100vh; 
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            overflow-x: hidden;
-        }
-        
-        /* Vibrant Bubbles: Inke upar se glass "watery" lagega */
-        .orb { position: fixed; border-radius: 50%; filter: blur(80px); z-index: -1; opacity: 0.5; }
-        .orb-1 { width: 500px; height: 500px; background: #c7d2fe; top: -10%; left: -10%; }
-        .orb-2 { width: 400px; height: 400px; background: #fbcfe8; bottom: 10%; right: -5%; }
-        .orb-3 { width: 300px; height: 300px; background: #fef3c7; top: 30%; left: 30%; }
-
-        /* Asli iPhone Glass Logic */
-        .iphone-glass { 
-            background: rgba(255, 255, 255, 0.15); /* Haldi transparency */
-            backdrop-filter: blur(25px) saturate(180%); 
-            -webkit-backdrop-filter: blur(25px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.4); /* Shining Edge */
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
-            border-radius: 30px;
-        }
-
-        .gradient-title {
-            background: linear-gradient(135deg, #4f46e5, #ec4899);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        body { background-color: #f0f4f8; font-family: 'Segoe UI', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.3); }
+        .premium-card { transition: transform 0.3s ease; }
+        .premium-card:hover { transform: translateY(-5px); }
     </style>
 </head>
 <body class="p-6 md:p-12">
-    <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
-
-    <div class="max-w-7xl mx-auto">
-        <header class="text-center py-12">
-            <h1 class="text-6xl font-black mb-3 gradient-title tracking-tight">IPOMoney</h1>
-            <p class="text-slate-500 text-lg font-medium">Real-time Premium Market Analytics</p>
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-12 text-center">
+            <h1 class="text-4xl font-bold text-slate-800 mb-2">IPO Insights Dashboard</h1>
+            <p class="text-slate-500">Real-time Premium Market Analytics</p>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-20">
-            <div class="iphone-glass p-8">
-                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Market Split</h3>
-                <div class="h-60 flex justify-center"><canvas id="pieChart"></canvas></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            <div class="glass p-6 shadow-xl">
+                <h3 class="text-lg font-semibold mb-4 text-slate-700">IPO Distribution (Pie)</h3>
+                <canvas id="pieChart"></canvas>
             </div>
-            <div class="iphone-glass p-8">
-                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Activity Graph</h3>
-                <div class="h-60"><canvas id="barChart"></canvas></div>
+            <div class="glass p-6 shadow-xl">
+                <h3 class="text-lg font-semibold mb-4 text-slate-700">Recent Growth (Bar)</h3>
+                <canvas id="barChart"></canvas>
             </div>
         </div>
 
-        <h2 class="text-3xl font-extrabold text-slate-800 mb-10 ml-2">Live Opportunities</h2>
-        <div id="ipo-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <h2 class="text-2xl font-semibold mb-6 text-slate-700">Active Listings</h2>
+        <div id="ipo-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             </div>
     </div>
 
     <script>
-        const SUPABASE_URL = "https://blwjuzmvrvtfklthvfoz.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_eJVOHdhBG6Rbbivp8vogLQ_8ADKpsOY";
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        async function loadData() {
-            const { data: ipos } = await _supabase.from('ipos').select('*');
-            const container = document.getElementById('ipo-list');
-            if (ipos) {
-                container.innerHTML = ipos.map(ipo => `
-                    <div class="iphone-glass p-8 hover:-translate-y-2 transition-all duration-500 cursor-pointer group">
-                        <div class="flex justify-between items-start mb-10">
-                            <div class="w-12 h-12 iphone-glass flex items-center justify-center border-white/60">
-                                <div class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
-                            </div>
-                            <span class="text-[10px] font-black bg-white/40 backdrop-blur-md text-indigo-600 px-3 py-1 rounded-full border border-white/50 uppercase">Live</span>
-                        </div>
-                        <h2 class="text-2xl font-black text-slate-800 leading-tight mb-2">${ipo.name}</h2>
-                        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-6">${ipo.category || 'Mainboard'}</p>
-                        <div class="flex items-center text-indigo-600 font-bold text-xs group-hover:gap-2 transition-all">
-                            EXPLORE ANALYSIS <span>→</span>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-
-        // Setup Charts
-        new Chart(document.getElementById('pieChart'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Mainboard', 'SME', 'Debt'],
-                datasets: [{ data: [12, 5, 2], backgroundColor: ['#818cf8', '#f472b6', '#fbbf24'], borderWidth: 0 }]
-            },
-            options: { cutout: '80%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 10, weight: 'bold' } } } } }
-        });
-
+        // Placeholder data for UI feel (Abhi ke liye)
+        const ipoData = ["SME IPO 1", "Mainboard 2", "Tech IPO 3"]; 
+        
+        // Bar Chart
         new Chart(document.getElementById('barChart'), {
             type: 'bar',
             data: {
-                labels: ['M', 'T', 'W', 'T', 'F'],
-                datasets: [{ data: [3, 7, 4, 8, 5], backgroundColor: '#818cf8', borderRadius: 10 }]
+                labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+                datasets: [{ label: 'IPOs Listed', data: [12, 19, 3, 5], backgroundColor: '#93c5fd' }]
             },
-            options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
+            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
         });
 
-        loadData();
+        // Pie Chart
+        new Chart(document.getElementById('pieChart'), {
+            type: 'pie',
+            data: {
+                labels: ['Mainboard', 'SME', 'Debt'],
+                datasets: [{ data: [10, 7, 3], backgroundColor: ['#bfdbfe', '#86efac', '#fde68a'] }]
+            }
+        });
+
+        // Loop to create Cards
+        const container = document.getElementById('ipo-container');
+        // Note: Next step mein hum isse Supabase se connect karenge
+        for(let i=0; i<17; i++) {
+            container.innerHTML += `
+                <div class="glass p-6 premium-card shadow-md hover:shadow-2xl">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full mb-4 flex items-center justify-center text-blue-500 font-bold">#${i+1}</div>
+                    <h4 class="font-bold text-slate-800 text-xl">Loading IPO...</h4>
+                    <p class="text-slate-500 text-sm mt-2">Connecting to Supabase...</p>
+                    <div class="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center text-xs font-semibold text-blue-600">
+                        <span>LIVE NOW</span>
+                        <span class="bg-blue-50 px-2 py-1 rounded">DETAILS</span>
+                    </div>
+                </div>
+            `;
+        }
     </script>
 </body>
 </html>
