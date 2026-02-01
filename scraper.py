@@ -8,33 +8,30 @@ key = os.environ.get("SUPABASE_KEY")
 supabase = create_client(url, key)
 
 def get_ipo_data():
-    # Ye headers website ko lagega ki asli browser se request aa rahi hai
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36',
-        'Accept-Language': 'en-US,en;q=0.9',
-    }
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    # Moneycontrol ka IPO page
+    target_url = "https://www.moneycontrol.com/ipo/forthcoming-ipos.html"
     
     try:
-        r = requests.get("https://www.chittorgarh.com/report/main-board-ipo-list-in-india/20/", headers=headers, timeout=15)
+        r = requests.get(target_url, headers=headers, timeout=15)
         soup = BeautifulSoup(r.text, 'html.parser')
         
-        # Is baar hum table ki ID dhoondenge jo zyada accurate hai
+        # Moneycontrol ki table find karna
         table = soup.find('table')
         
         if table:
             rows = table.find_all('tr')
-            # Pehli kuch rows skip karke dekhte hain jahan asli data hota hai
-            for row in rows[1:5]: 
-                cols = row.find_all('td')
-                if len(cols) > 0:
-                    ipo_name = cols[0].text.strip()
-                    if ipo_name and "More..." not in ipo_name:
-                        data = {"name": ipo_name, "category": "Mainboard", "status": "Live"}
-                        supabase.table("ipos").insert(data).execute()
-                        print(f"🚀 Success: {ipo_name} add ho gaya!")
-                        return # Ek naam milte hi ruk jao
+            if len(rows) > 1:
+                # First data row
+                cols = rows[1].find_all('td')
+                ipo_name = cols[0].text.strip()
+                
+                data = {"name": ipo_name, "category": "Mainboard", "status": "Upcoming"}
+                supabase.table("ipos").insert(data).execute()
+                print(f"🚀 Success: {ipo_name} add ho gaya!")
         else:
-            print("❌ Table nahi mili! Website ne block kiya hai.")
+            print("❌ Moneycontrol par bhi table nahi mili!")
+            
     except Exception as e:
         print(f"❌ Error: {e}")
 
