@@ -3,78 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium IPO Dashboard</title>
+    <title>IPOMoney - Premium Analytics</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { background-color: #f0f4f8; font-family: 'Segoe UI', sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.3); }
-        .premium-card { transition: transform 0.3s ease; }
-        .premium-card:hover { transform: translateY(-5px); }
+        body { 
+            background: radial-gradient(circle at top left, #e0e7ff 0%, #fef2f2 50%, #f0fdf4 100%); 
+            min-height: 100vh;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.45); 
+            backdrop-filter: blur(16px); 
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+            border-radius: 28px;
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #4f46e5, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
     </style>
 </head>
-<body class="p-6 md:p-12">
-    <div class="max-w-6xl mx-auto">
-        <header class="mb-12 text-center">
-            <h1 class="text-4xl font-bold text-slate-800 mb-2">IPO Insights Dashboard</h1>
-            <p class="text-slate-500">Real-time Premium Market Analytics</p>
+<body class="p-6 md:p-10">
+    <div class="max-w-7xl mx-auto">
+        <header class="text-center py-12">
+            <h1 class="text-6xl font-black mb-3 gradient-text">IPOMoney</h1>
+            <p class="text-slate-500 text-lg font-medium">Exclusive Market Insights & Real-time Data</p>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-            <div class="glass p-6 shadow-xl">
-                <h3 class="text-lg font-semibold mb-4 text-slate-700">IPO Distribution (Pie)</h3>
-                <canvas id="pieChart"></canvas>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-16">
+            <div class="glass-card p-10">
+                <h3 class="text-xl font-bold text-slate-800 mb-8">Category Wise Split</h3>
+                <div class="h-64 flex justify-center">
+                    <canvas id="pieChart"></canvas>
+                </div>
             </div>
-            <div class="glass p-6 shadow-xl">
-                <h3 class="text-lg font-semibold mb-4 text-slate-700">Recent Growth (Bar)</h3>
-                <canvas id="barChart"></canvas>
+            <div class="glass-card p-10">
+                <h3 class="text-xl font-bold text-slate-800 mb-8">Weekly IPO Listings</h3>
+                <div class="h-64">
+                    <canvas id="barChart"></canvas>
+                </div>
             </div>
         </div>
 
-        <h2 class="text-2xl font-semibold mb-6 text-slate-700">Active Listings</h2>
-        <div id="ipo-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <h2 class="text-3xl font-bold text-slate-800 mb-10 pl-2">Live Opportunities</h2>
+        <div id="ipo-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             </div>
     </div>
 
     <script>
-        // Placeholder data for UI feel (Abhi ke liye)
-        const ipoData = ["SME IPO 1", "Mainboard 2", "Tech IPO 3"]; 
-        
-        // Bar Chart
-        new Chart(document.getElementById('barChart'), {
+        // Supabase Connection (Fixed with your credentials)
+        const SUPABASE_URL = "https://blwjuzmvrvtfklthvfoz.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_eJVOHdhBG6Rbbivp8vogLQ_8ADKpsOY";
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function loadData() {
+            const { data: ipos, error } = await _supabase.from('ipos').select('*');
+            const container = document.getElementById('ipo-list');
+            
+            if (ipos) {
+                container.innerHTML = '';
+                ipos.forEach((ipo, index) => {
+                    container.innerHTML += `
+                        <div class="glass-card p-8 hover:-translate-y-2 transition-all duration-500 cursor-pointer group">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="p-3 bg-white rounded-2xl shadow-sm group-hover:bg-indigo-50 transition-colors">
+                                    <svg class="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                                </div>
+                                <span class="text-[10px] font-bold bg-green-100 text-green-600 px-3 py-1 rounded-full uppercase">Live</span>
+                            </div>
+                            <h2 class="text-xl font-extrabold text-slate-900 leading-tight mb-2">${ipo.name}</h2>
+                            <p class="text-slate-400 text-sm mb-6">${ipo.category || 'Mainboard IPO'}</p>
+                            <div class="flex items-center text-indigo-600 font-bold text-sm">
+                                View Analysis
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        // Beautiful Charts Setup
+        const chartCtx1 = document.getElementById('pieChart').getContext('2d');
+        new Chart(chartCtx1, {
+            type: 'doughnut',
+            data: {
+                labels: ['Mainboard', 'SME', 'Others'],
+                datasets: [{
+                    data: [12, 5, 2],
+                    backgroundColor: ['#6366f1', '#f472b6', '#cbd5e1'],
+                    hoverOffset: 20,
+                    borderWidth: 0
+                }]
+            },
+            options: { cutout: '75%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 25 } } } }
+        });
+
+        const chartCtx2 = document.getElementById('barChart').getContext('2d');
+        new Chart(chartCtx2, {
             type: 'bar',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr'],
-                datasets: [{ label: 'IPOs Listed', data: [12, 19, 3, 5], backgroundColor: '#93c5fd' }]
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+                datasets: [{
+                    label: 'Activity',
+                    data: [3, 7, 4, 8, 5],
+                    backgroundColor: '#6366f1',
+                    borderRadius: 15,
+                    barThickness: 20
+                }]
             },
-            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
         });
 
-        // Pie Chart
-        new Chart(document.getElementById('pieChart'), {
-            type: 'pie',
-            data: {
-                labels: ['Mainboard', 'SME', 'Debt'],
-                datasets: [{ data: [10, 7, 3], backgroundColor: ['#bfdbfe', '#86efac', '#fde68a'] }]
-            }
-        });
-
-        // Loop to create Cards
-        const container = document.getElementById('ipo-container');
-        // Note: Next step mein hum isse Supabase se connect karenge
-        for(let i=0; i<17; i++) {
-            container.innerHTML += `
-                <div class="glass p-6 premium-card shadow-md hover:shadow-2xl">
-                    <div class="w-12 h-12 bg-blue-100 rounded-full mb-4 flex items-center justify-center text-blue-500 font-bold">#${i+1}</div>
-                    <h4 class="font-bold text-slate-800 text-xl">Loading IPO...</h4>
-                    <p class="text-slate-500 text-sm mt-2">Connecting to Supabase...</p>
-                    <div class="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center text-xs font-semibold text-blue-600">
-                        <span>LIVE NOW</span>
-                        <span class="bg-blue-50 px-2 py-1 rounded">DETAILS</span>
-                    </div>
-                </div>
-            `;
-        }
+        loadData();
     </script>
 </body>
 </html>
