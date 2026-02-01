@@ -1,0 +1,28 @@
+name: IPO Data Auto Update
+
+on:
+  workflow_dispatch: # Button se chalane ke liye
+  schedule:
+    - cron: '0 0 * * *' # Har raat 12 baje ke liye
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install tools
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run Scraper
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python scraper.py
