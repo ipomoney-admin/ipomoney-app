@@ -1,5 +1,6 @@
 import os
 import requests
+from bs4 import BeautifulSoup
 from supabase import create_client
 
 url = os.environ.get("SUPABASE_URL")
@@ -7,27 +8,32 @@ key = os.environ.get("SUPABASE_KEY")
 supabase = create_client(url, key)
 
 def get_ipo_data():
-    # Seedha API hit karenge (No HTML, No Tables)
-    api_url = "https://www.chittorgarh.com/services/static/report/main-board-ipo-list-in-india/20/"
     headers = {'User-Agent': 'Mozilla/5.0'}
+    # IPO Watch ka main page
+    target_url = "https://ipowatch.in/"
     
     try:
-        r = requests.get(api_url, headers=headers, timeout=15)
-        # Agar JSON mil gaya toh lottery lag gayi
-        if r.status_code == 200:
-            data_list = r.json()
-            if data_list and len(data_list) > 0:
-                # Pehla IPO nikalna
-                ipo_name = data_list[0].get('issuer_company_name', 'Unknown IPO')
-                
-                payload = {"name": ipo_name, "category": "Mainboard", "status": "Live"}
-                supabase.table("ipos").insert(payload).execute()
-                print(f"🚀 Success: {ipo_name} add ho gaya!")
-            else:
-                print("❌ Data khali mila!")
+        r = requests.get(target_url, headers=headers, timeout=15)
+        soup = BeautifulSoup(r.text, 'html.parser')
+        
+        # IPO Watch mein data table ke andar hota hai
+        table = soup.find('table')
+        
+        if table:
+            rows = table.find_all('tr')
+            # Row 1 ya 2 mein asli data hota hai
+            for row in rows[1:4]:
+                cols = row.find_all('td')
+                if len(cols) > 0:
+                    ipo_name = cols[0].text.strip()
+                    # Filter out header or empty names
+                    if ipo_name and "IPO Name" not in ipo_name:
+                        data = {"name": ipo_name, "category": "Mainboard", "status": "Live"}
+                        supabase.table("ipos").insert(data).execute()
+                        print(f"🚀 Success: {ipo_name} add ho gaya!")
+                        return
         else:
-            # Plan B: Simple Scraper for a very basic site
-            print(f"❌ API fail: {r.status_code}")
+            print("❌ IPO Watch par table nahi mili!")
     except Exception as e:
         print(f"❌ Error: {e}")
 
