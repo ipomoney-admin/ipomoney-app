@@ -1,24 +1,32 @@
 import os
+import requests
+from bs4 import BeautifulSoup
 from supabase import create_client
 
-# Ye lines aapke secrets (URL aur Key) ko read karengi
 url = os.environ.get("SUPABASE_URL")
 key = os.environ.get("SUPABASE_KEY")
 supabase = create_client(url, key)
 
-def test_data():
-    # Hum ek dummy data bhej rahe hain testing ke liye
+def get_ipo_data():
+    # Chittorgarh website se data uthana
+    r = requests.get("https://www.chittorgarh.com/report/main-board-ipo-list-in-india/20/")
+    soup = BeautifulSoup(r.text, 'html.parser')
+    
+    # Table se pehla IPO nikalna
+    first_row = soup.find('table').find_all('tr')[1]
+    cols = first_row.find_all('td')
+    
+    ipo_name = cols[0].text.strip()
+    
     data = {
-        "name": "Tata Motors IPO Test",
+        "name": ipo_name,
         "category": "Mainboard",
-        "status": "Upcoming"
+        "status": "Live"
     }
-    # Ye command data ko Supabase ki 'ipos' table mein bhej degi
-    try:
-        supabase.table("ipos").insert(data).execute()
-        print("Mubarak Ho! Data Supabase mein pahunch gaya.")
-    except Exception as e:
-        print(f"Kuch gadbad hui: {e}")
+    
+    # Supabase mein bhejnah
+    supabase.table("ipos").insert(data).execute()
+    print(f"Success: {ipo_name} add ho gaya!")
 
 if __name__ == "__main__":
-    test_data()
+    get_ipo_data()
