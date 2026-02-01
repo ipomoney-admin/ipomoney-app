@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium IPO Dashboard</title>
+    <title>IPOMoney - Final Premium Version</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -47,13 +47,13 @@
     </div>
 
     <script>
-        // STEP 1: Apne Supabase details yahan daalein
-        const SUPABASE_URL = "YOUR_SUPABASE_URL"; 
-        const SUPABASE_KEY = "YOUR_ANON_KEY"; 
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Supabase Configuration
+        const SUPABASE_URL = "https://blwjuzmvrvtfklthvfoz.supabase.co"; 
+        const SUPABASE_KEY = "sb_publishable_eJVOHdhBG6Rbbivp8vogLQ_8ADKpsOY"; 
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         async function loadIPOs() {
-            const { data: ipos, error } = await supabase.from('ipos').select('*');
+            const { data: ipos, error } = await _supabase.from('ipos').select('*');
             const container = document.getElementById('ipo-list');
             
             if (ipos) {
@@ -73,13 +73,13 @@
             }
         }
 
-        // Soft Color Charts Setup
+        // Charts Initialization
         new Chart(document.getElementById('pieChart'), {
             type: 'doughnut',
             data: {
                 labels: ['Mainboard', 'SME'],
                 datasets: [{
-                    data: [10, 7],
+                    data: [12, 5],
                     backgroundColor: ['#6366f1', '#f472b6'],
                     borderWidth: 0
                 }]
