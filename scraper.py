@@ -1,50 +1,46 @@
-import os
 import requests
 from bs4 import BeautifulSoup
 from supabase import create_client
+import os
 
-# Credentials setup
-url = os.environ.get("SUPABASE_URL")
-key = os.environ.get("SUPABASE_KEY")
-supabase = create_client(url, key)
+# Supabase Credentials (GitHub Secrets se uthayenge)
+URL = os.environ.get("SUPABASE_URL")
+KEY = os.environ.get("SUPABASE_KEY")
+supabase = create_client(URL, KEY)
 
-def get_ipo_data():
+def scrape_ipo_premium():
+    # Target URL jahan GMP aur Subscription table milti hai
+    url = "https://ipopremium.in/ipo-gmp-live-subscription-data-today/"
     headers = {'User-Agent': 'Mozilla/5.0'}
-    # Aapka working URL
-    target_url = "https://www.ipowatch.in/"
     
     try:
-        r = requests.get(target_url, headers=headers, timeout=15)
-        soup = BeautifulSoup(r.text, 'html.parser')
-        table = soup.find('table')
+        response = requests.get(url, headers=headers)
+        soup = BeautifulSoup(response.text, 'html.parser')
         
-        if table:
-            # Step 1: Purana data delete karo (Fresh start ke liye)
-            supabase.table("ipos").delete().neq("name", "dummystring").execute()
-            
-            rows = table.find_all('tr')
-            # Step 2: Loop chalao saari rows par (Pehli 15 rows tak)
-            for row in rows[1:15]:
-                cols = row.find_all('td')
-                if len(cols) > 0:
-                    ipo_name = cols[0].text.strip()
-                    
-                    # Garbage data filter karna
-                    if ipo_name and "IPO Name" not in ipo_name and len(ipo_name) > 3:
-                        payload = {
-                            "name": ipo_name,
-                            "category": "Mainboard",
-                            "status": "Live"
-                        }
-                        # Step 3: Har IPO ko insert karo
-                        supabase.table("ipos").insert(payload).execute()
-                        print(f"✅ Added: {ipo_name}")
-            
-            print("🚀 Saare IPOs update ho gaye!")
-        else:
-            print("❌ Table nahi mili!")
+        # Table find karna (IPO Premium usually standard tables use karta hai)
+        table = soup.find('table')
+        rows = table.find_all('tr')[1:] # Header skip karo
+        
+        for row in rows:
+            cols = row.find_all('td')
+            if len(cols) >= 5:
+                # Website ke column order ke hisaab se mapping
+                ipo_data = {
+                    "name": cols[0].get_text(strip=True),
+                    "gmp": cols[1].get_text(strip=True),
+                    "price_band": cols[2].get_text(strip=True),
+                    "subscription": cols[3].get_text(strip=True),
+                    "dates": cols[4].get_text(strip=True),
+                    "type": "Mainboard" if "SME" not in cols[0].get_text() else "SME",
+                    "status": "Live"
+                }
+                
+                # Supabase mein Upsert (Duplicate nahi banega, sirf update hoga)
+                supabase.table("ipos").upsert(ipo_data, on_conflict="name").execute()
+                print(f"Success: {ipo_data['name']} updated.")
+                
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"Error occurred: {e}")
 
 if __name__ == "__main__":
-    get_ipo_data()
+    scrape_ipo_premium()
