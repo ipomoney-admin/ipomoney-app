@@ -13,16 +13,17 @@
         @media (max-width: 1024px) { .sidebar { display: none; } .main-content { margin-left: 0; padding: 20px; } }
         .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; color: #64748b; font-weight: 600; transition: 0.2s; text-decoration: none; margin-bottom: 4px; font-size: 14px; }
         .nav-item.active { background: #eef2ff; color: #4f46e5; }
-        .glass-card { background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 24px; transition: 0.3s; height: 100%; }
+        .glass-card { background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 24px; transition: 0.3s; height: 100%; display: flex; flex-direction: column; }
         .section-title { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #6366f1; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; }
         .section-title::after { content: ""; height: 1px; background: #e2e8f0; flex: 1; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
     <aside class="sidebar p-6">
         <div class="text-2xl font-black text-indigo-600 mb-10 px-2 underline decoration-indigo-200 decoration-4">IPOMoney</div>
-        <nav class="flex-1 overflow-y-auto pb-10">
+        <nav class="flex-1 overflow-y-auto no-scrollbar pb-10">
             <a href="#" class="nav-item active"><span>🏠</span> Dashboard</a>
             <a href="#" class="nav-item"><span>🚀</span> Live IPOs</a>
             <a href="#" class="nav-item"><span>📅</span> Upcoming</a>
@@ -35,18 +36,32 @@
     </aside>
 
     <main class="main-content">
-        <header class="mb-8"><h2 class="text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">Market Analytics</h2></header>
+        <header class="mb-8">
+            <h2 class="text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">Market Analytics</h2>
+        </header>
 
         <div id="ipo-sections" class="space-y-12">
-            <p class="text-slate-400 text-center">Organizing IPOs by date...</p>
+            <p class="text-slate-400 text-center">Organizing IPOs by live dates...</p>
         </div>
     </main>
+
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around py-3 z-50 shadow-2xl">
+        <button class="text-indigo-600 flex flex-col items-center"><span class="text-xl">🏠</span><span class="text-[9px] font-bold">Home</span></button>
+        <button class="text-slate-400 flex flex-col items-center"><span class="text-xl">🔥</span><span class="text-[9px] font-bold">GMP</span></button>
+        <button class="text-slate-400 flex flex-col items-center"><span class="text-xl">📊</span><span class="text-[9px] font-bold">Subs</span></button>
+        <button class="text-slate-400 flex flex-col items-center"><span class="text-xl">🔍</span><span class="text-[9px] font-bold">Allot</span></button>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const S_URL = 'https://blwjuzmvrvtfklthvfoz.supabase.co';
         const S_KEY = 'sb_publishable_eJVOHdhBG6Rbbivp8vogLQ_8ADKpsOY';
         const dbClient = supabase.createClient(S_URL, S_KEY);
+
+        function parseIPODate(dateStr) {
+            const currentYear = 2026; // Setting year as per requirement
+            return new Date(`${dateStr.trim()}, ${currentYear}`);
+        }
 
         function createCard(ipo) {
             const gmpVal = ipo.gmp || 'Update Soon';
@@ -55,15 +70,16 @@
                 <div class="glass-card">
                     <div class="flex justify-between items-start mb-4">
                         <h3 class="font-bold text-lg text-slate-800 leading-tight">${ipo.name}</h3>
-                        <span class="bg-slate-100 text-slate-600 text-[9px] px-2 py-1 rounded font-bold">${ipo.type}</span>
+                        <span class="bg-indigo-50 text-indigo-600 text-[9px] px-2 py-1 rounded font-black uppercase">${ipo.type}</span>
                     </div>
                     <div class="space-y-3 mb-6">
-                        <div class="flex justify-between border-b border-slate-50 pb-2"><span class="text-slate-400 text-xs">GMP</span><span class="${gmpCol} font-bold text-sm">${gmpVal}</span></div>
-                        <div class="flex justify-between border-b border-slate-50 pb-2"><span class="text-slate-400 text-xs">Dates</span><span class="text-slate-800 font-bold text-[10px]">${ipo.dates}</span></div>
+                        <div class="flex justify-between border-b border-slate-50 pb-2"><span class="text-slate-400 text-xs font-medium italic">GMP</span><span class="${gmpCol} font-bold text-sm">${gmpVal}</span></div>
+                        <div class="flex justify-between border-b border-slate-50 pb-2"><span class="text-slate-400 text-xs font-medium italic">Dates</span><span class="text-slate-800 font-bold text-[10px]">${ipo.dates}</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400 text-xs font-medium italic">Price</span><span class="text-slate-800 font-bold text-sm">${ipo.price_band}</span></div>
                     </div>
                     <div class="grid grid-cols-2 gap-2 mt-auto">
-                        <button class="bg-indigo-600 text-white py-2.5 rounded-xl text-[10px] font-bold">Details</button>
-                        <button class="bg-white border border-slate-200 text-slate-700 py-2.5 rounded-xl text-[10px] font-bold">Allotment</button>
+                        <button class="bg-indigo-600 text-white py-2.5 rounded-xl text-[10px] font-bold hover:bg-indigo-700 transition">Details</button>
+                        <button class="bg-white border border-slate-200 text-slate-700 py-2.5 rounded-xl text-[10px] font-bold hover:bg-slate-50 transition">Allotment</button>
                     </div>
                 </div>`;
         }
@@ -74,24 +90,39 @@
                 const { data: ipos, error } = await dbClient.from('ipos').select('*').order('created_at', { ascending: false });
                 if (error) throw error;
 
-                // Logic: Filter Ongoing vs Upcoming based on current date (Feb 3, 2026)
-                const today = new Date('2026-02-03');
-                
-                const ongoingMain = ipos.filter(i => i.type === 'Mainboard' && new Date(i.dates.split('-')[0]) <= today);
-                const ongoingSME = ipos.filter(i => i.type === 'SME' && new Date(i.dates.split('-')[0]) <= today);
-                const upcomingMain = ipos.filter(i => i.type === 'Mainboard' && new Date(i.dates.split('-')[0]) > today);
-                const upcomingSME = ipos.filter(i => i.type === 'SME' && new Date(i.dates.split('-')[0]) > today);
+                const today = new Date('2026-02-03'); // Today's Date
+                today.setHours(0,0,0,0);
+
+                const ongoingMain = [];
+                const ongoingSME = [];
+                const upcomingMain = [];
+                const upcomingSME = [];
+
+                ipos.forEach(ipo => {
+                    const dateParts = ipo.dates.split('-').map(d => d.trim());
+                    const openDate = parseIPODate(dateParts[0]);
+                    const closeDate = dateParts[1] ? parseIPODate(dateParts[1]) : openDate;
+
+                    if (openDate <= today && closeDate >= today) {
+                        if (ipo.type === 'Mainboard') ongoingMain.push(ipo);
+                        else ongoingSME.push(ipo);
+                    } else if (openDate > today) {
+                        if (ipo.type === 'Mainboard') upcomingMain.push(ipo);
+                        else upcomingSME.push(ipo);
+                    }
+                });
 
                 let html = '';
+                const renderGrid = (list) => `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">${list.map(createCard).join('')}</div>`;
 
-                if(ongoingMain.length) html += `<section class="mb-10"><h3 class="section-title">Mainboard IPOs (Ongoing)</h3><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">${ongoingMain.map(createCard).join('')}</div></section>`;
-                if(ongoingSME.length) html += `<section class="mb-10"><h3 class="section-title">SME IPOs (Ongoing)</h3><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">${ongoingSME.map(createCard).join('')}</div></section>`;
-                if(upcomingMain.length) html += `<section class="mb-10"><h3 class="section-title">Mainboard (Upcoming)</h3><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">${upcomingMain.map(createCard).join('')}</div></section>`;
-                if(upcomingSME.length) html += `<section class="mb-10"><h3 class="section-title">SME (Upcoming)</h3><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">${upcomingSME.map(createCard).join('')}</div></section>`;
+                if(ongoingMain.length) html += `<section class="mb-10"><h3 class="section-title">Mainboard IPOs (Ongoing)</h3>${renderGrid(ongoingMain)}</section>`;
+                if(ongoingSME.length) html += `<section class="mb-10"><h3 class="section-title">SME IPOs (Ongoing)</h3>${renderGrid(ongoingSME)}</section>`;
+                if(upcomingMain.length) html += `<section class="mb-10"><h3 class="section-title">Mainboard (Upcoming)</h3>${renderGrid(upcomingMain)}</section>`;
+                if(upcomingSME.length) html += `<section class="mb-10"><h3 class="section-title">SME (Upcoming)</h3>${renderGrid(upcomingSME)}</section>`;
 
-                container.innerHTML = html || '<p class="text-center text-slate-400">No active IPOs found.</p>';
+                container.innerHTML = html || '<p class="text-center text-slate-400 font-bold">Abhi koi live IPO nahi mil raha hai.</p>';
             } catch (err) {
-                container.innerHTML = `<p class="text-red-500 text-center">${err.message}</p>`;
+                container.innerHTML = `<p class="text-red-500 text-center font-bold">Error: ${err.message}</p>`;
             }
         }
         loadDashboard();
