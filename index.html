@@ -3,114 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPOMoney - Ultra Glass Edition</title>
+    <title>IPOMoney | Elite Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Soothing & Deep background taaki glass dikhe */
-        body { 
-            background: #f0f2f5; 
-            min-height: 100vh; 
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            overflow-x: hidden;
-        }
-        
-        /* Vibrant Bubbles: Inke upar se glass "watery" lagega */
-        .orb { position: fixed; border-radius: 50%; filter: blur(80px); z-index: -1; opacity: 0.5; }
-        .orb-1 { width: 500px; height: 500px; background: #c7d2fe; top: -10%; left: -10%; }
-        .orb-2 { width: 400px; height: 400px; background: #fbcfe8; bottom: 10%; right: -5%; }
-        .orb-3 { width: 300px; height: 300px; background: #fef3c7; top: 30%; left: 30%; }
-
-        /* Asli iPhone Glass Logic */
+        body { background: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; }
         .iphone-glass { 
-            background: rgba(255, 255, 255, 0.15); /* Haldi transparency */
-            backdrop-filter: blur(25px) saturate(180%); 
-            -webkit-backdrop-filter: blur(25px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.4); /* Shining Edge */
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
-            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.7); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255, 255, 255, 0.5); 
+            border-radius: 20px;
         }
-
-        .gradient-title {
-            background: linear-gradient(135deg, #4f46e5, #ec4899);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .sidebar { width: 260px; height: 100vh; position: fixed; left: 0; top: 0; }
+        .main-content { margin-left: 260px; padding: 40px; }
     </style>
 </head>
-<body class="p-6 md:p-12">
-    <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
+<body>
+    <nav class="sidebar border-r bg-white p-6 flex flex-col">
+        <h1 class="text-2xl font-black text-indigo-600 mb-10">IPOMoney</h1>
+        <div class="space-y-4 flex-1">
+            <a href="#" class="flex items-center space-x-3 p-3 bg-indigo-50 text-indigo-600 rounded-xl font-bold">
+                <span>🏠</span> <span>Dashboard</span>
+            </a>
+            <a href="#" class="flex items-center space-x-3 p-3 text-slate-500 hover:bg-slate-50 rounded-xl transition">
+                <span>📈</span> <span>Live IPOs</span>
+            </a>
+            <a href="#" class="flex items-center space-x-3 p-3 text-slate-500 hover:bg-slate-50 rounded-xl transition">
+                <span>📰</span> <span>AI News</span>
+            </a>
+        </div>
+        <div id="auth-section" class="mt-auto border-t pt-6">
+            </div>
+    </nav>
 
-    <div class="max-w-7xl mx-auto">
-        <header class="text-center py-12">
-            <h1 class="text-6xl font-black mb-3 gradient-title tracking-tight">IPOMoney</h1>
-            <p class="text-slate-500 text-lg font-medium">Real-time Premium Market Analytics</p>
+    <main class="main-content">
+        <header class="flex justify-between items-center mb-12">
+            <div>
+                <h2 class="text-3xl font-extrabold text-slate-800">Welcome Back!</h2>
+                <p class="text-slate-500">Track your favorite IPOs in real-time.</p>
+            </div>
+            <div id="user-pill" class="iphone-glass px-4 py-2 flex items-center space-x-3 border shadow-sm">
+                <span id="user-status" class="text-sm font-bold text-slate-600">Checking Auth...</span>
+            </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-20">
-            <div class="iphone-glass p-8">
-                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Market Split</h3>
-                <div class="h-60 flex justify-center"><canvas id="pieChart"></canvas></div>
-            </div>
-            <div class="iphone-glass p-8">
-                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Activity Graph</h3>
-                <div class="h-60"><canvas id="barChart"></canvas></div>
+        <div id="login-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white p-10 rounded-3xl w-[400px] shadow-2xl">
+                <h3 class="text-2xl font-bold mb-6">Login to IPOMoney</h3>
+                <input id="auth-email" type="email" placeholder="Enter Email" class="w-full p-4 bg-slate-100 rounded-xl mb-4 border-none focus:ring-2 focus:ring-indigo-500">
+                <button onclick="handleLogin()" class="w-full bg-indigo-600 text-white p-4 rounded-xl font-bold shadow-lg hover:bg-indigo-700 transition">Send Magic Link</button>
+                <p class="text-xs text-slate-400 mt-4 text-center">We will send a secure link to your email/mobile.</p>
             </div>
         </div>
 
-        <h2 class="text-3xl font-extrabold text-slate-800 mb-10 ml-2">Live Opportunities</h2>
-        <div id="ipo-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div id="ipo-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             </div>
-    </div>
+    </main>
 
     <script>
         const SUPABASE_URL = "https://blwjuzmvrvtfklthvfoz.supabase.co";
         const SUPABASE_KEY = "sb_publishable_eJVOHdhBG6Rbbivp8vogLQ_8ADKpsOY";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // Auth Listener
+        _supabase.auth.onAuthStateChange((event, session) => {
+            const statusBox = document.getElementById('user-status');
+            const modal = document.getElementById('login-modal');
+            if (session) {
+                statusBox.innerText = session.user.email;
+                modal.classList.add('hidden');
+                loadData();
+            } else {
+                statusBox.innerText = "Guest User";
+                modal.classList.remove('hidden');
+            }
+        });
+
+        async function handleLogin() {
+            const email = document.getElementById('auth-email').value;
+            const { error } = await _supabase.auth.signInWithOtp({ email });
+            if (error) alert(error.message);
+            else alert("Check your email for the magic link!");
+        }
+
         async function loadData() {
             const { data: ipos } = await _supabase.from('ipos').select('*');
             const container = document.getElementById('ipo-list');
             if (ipos) {
                 container.innerHTML = ipos.map(ipo => `
-                    <div class="iphone-glass p-8 hover:-translate-y-2 transition-all duration-500 cursor-pointer group">
-                        <div class="flex justify-between items-start mb-10">
-                            <div class="w-12 h-12 iphone-glass flex items-center justify-center border-white/60">
-                                <div class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
-                            </div>
-                            <span class="text-[10px] font-black bg-white/40 backdrop-blur-md text-indigo-600 px-3 py-1 rounded-full border border-white/50 uppercase">Live</span>
+                    <div class="iphone-glass p-6 hover:shadow-xl transition-all group">
+                        <div class="flex justify-between mb-6">
+                            <span class="text-[10px] font-black px-2 py-1 bg-green-100 text-green-600 rounded-md">LIVE</span>
+                            <span class="text-slate-300">⋮</span>
                         </div>
-                        <h2 class="text-2xl font-black text-slate-800 leading-tight mb-2">${ipo.name}</h2>
-                        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-6">${ipo.category || 'Mainboard'}</p>
-                        <div class="flex items-center text-indigo-600 font-bold text-xs group-hover:gap-2 transition-all">
-                            EXPLORE ANALYSIS <span>→</span>
+                        <h4 class="text-xl font-bold text-slate-800">${ipo.name}</h4>
+                        <p class="text-xs text-slate-500 mt-1">${ipo.category}</p>
+                        <div class="mt-6 pt-6 border-t flex justify-between items-center">
+                            <span class="text-xs font-bold text-indigo-600">Track Now</span>
+                            <span class="text-slate-400">→</span>
                         </div>
                     </div>
                 `).join('');
             }
         }
-
-        // Setup Charts
-        new Chart(document.getElementById('pieChart'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Mainboard', 'SME', 'Debt'],
-                datasets: [{ data: [12, 5, 2], backgroundColor: ['#818cf8', '#f472b6', '#fbbf24'], borderWidth: 0 }]
-            },
-            options: { cutout: '80%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 10, weight: 'bold' } } } } }
-        });
-
-        new Chart(document.getElementById('barChart'), {
-            type: 'bar',
-            data: {
-                labels: ['M', 'T', 'W', 'T', 'F'],
-                datasets: [{ data: [3, 7, 4, 8, 5], backgroundColor: '#818cf8', borderRadius: 10 }]
-            },
-            options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
-        });
-
-        loadData();
     </script>
 </body>
 </html>
