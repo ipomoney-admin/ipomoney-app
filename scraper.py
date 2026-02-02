@@ -9,7 +9,7 @@ KEY = os.environ.get("SUPABASE_KEY")
 supabase = create_client(URL, KEY)
 
 def scrape_ipo_premium():
-    url = "https://ipopremium.in/ipo-gmp-live-subscription-data-today/"
+    url = "https://ipopremium.in/"
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
     
     try:
