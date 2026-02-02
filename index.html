@@ -39,7 +39,20 @@
         <header class="flex justify-between items-center mb-10">
             <div>
                 <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Market Analytics</h2>
-                <p class="text-slate-500">Track real-time IPO performance from ipowatch.in.</p>
+                <p class="text-slate-500">Track real-time IPO performance from www.ipowatch.in.</p>
             </div>
             <div id="auth-section" class="flex items-center gap-3">
-                <div class="flex
+                <div class="flex items-center bg-white border border-slate-200 rounded-full px-4 py-1.5 shadow-sm focus-within:border-indigo-500">
+                    <input id="login-email" type="email" placeholder="Enter email..." class="bg-transparent border-none text-sm outline-none w-44">
+                    <button class="bg-indigo-600 text-white px-5 py-1.5 rounded-full text-xs font-bold hover:bg-indigo-700">Login</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex gap-3 mb-10">
+            <button onclick="displayIPOs('Mainboard')" class="px-6 py-2.5 bg-slate-900 text-white rounded-full text-sm font-bold shadow-lg">Mainboard</button>
+            <button onclick="displayIPOs('SME')" class="px-6 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-full text-sm font-bold hover:bg-slate-50">SME IPO</button>
+            <button onclick="displayIPOs('all')" class="px-6 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-full text-sm font-bold hover:bg-slate-50">Show All</button>
+        </div>
+
+        <div id
