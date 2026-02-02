@@ -3,41 +3,49 @@ from bs4 import BeautifulSoup
 from supabase import create_client
 import os
 
-# Supabase Credentials (GitHub Secrets se uthayenge)
+# Supabase Setup
 URL = os.environ.get("SUPABASE_URL")
 KEY = os.environ.get("SUPABASE_KEY")
 supabase = create_client(URL, KEY)
 
 def scrape_ipo_premium():
-    # Target URL jahan GMP aur Subscription table milti hai
     url = "https://ipopremium.in/ipo-gmp-live-subscription-data-today/"
-    headers = {'User-Agent': 'Mozilla/5.0'}
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
     
     try:
         response = requests.get(url, headers=headers)
         soup = BeautifulSoup(response.text, 'html.parser')
         
-        # Table find karna (IPO Premium usually standard tables use karta hai)
-        table = soup.find('table')
-        rows = table.find_all('tr')[1:] # Header skip karo
+        # Sabse pehle sari tables dhoondo
+        tables = soup.find_all('table')
+        
+        if not tables:
+            print("Bhai, website par koi table nahi mili!")
+            return
+
+        # Hum pehli table ko target kar rahe hain
+        target_table = tables[0]
+        rows = target_table.find_all('tr')[1:] # Header skip
         
         for row in rows:
             cols = row.find_all('td')
-            if len(cols) >= 5:
-                # Website ke column order ke hisaab se mapping
-                ipo_data = {
-                    "name": cols[0].get_text(strip=True),
-                    "gmp": cols[1].get_text(strip=True),
-                    "price_band": cols[2].get_text(strip=True),
-                    "subscription": cols[3].get_text(strip=True),
-                    "dates": cols[4].get_text(strip=True),
-                    "type": "Mainboard" if "SME" not in cols[0].get_text() else "SME",
-                    "status": "Live"
-                }
+            if len(cols) >= 4:
+                ipo_name = cols[0].get_text(strip=True)
                 
-                # Supabase mein Upsert (Duplicate nahi banega, sirf update hoga)
-                supabase.table("ipos").upsert(ipo_data, on_conflict="name").execute()
-                print(f"Success: {ipo_data['name']} updated.")
+                # Agar name empty nahi hai toh hi aage badho
+                if ipo_name:
+                    ipo_data = {
+                        "name": ipo_name,
+                        "gmp": cols[1].get_text(strip=True),
+                        "price_band": cols[2].get_text(strip=True),
+                        "subscription": cols[3].get_text(strip=True),
+                        "type": "SME" if "SME" in ipo_name.upper() else "Mainboard",
+                        "status": "Live"
+                    }
+                    
+                    # Supabase Upsert
+                    supabase.table("ipos").upsert(ipo_data, on_conflict="name").execute()
+                    print(f"Updated: {ipo_name}")
                 
     except Exception as e:
         print(f"Error occurred: {e}")
