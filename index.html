@@ -26,12 +26,9 @@
             <a href="#" class="nav-item"><span>🚀</span> Live IPOs</a>
             <a href="#" class="nav-item"><span>📅</span> Upcoming</a>
             <a href="#" class="nav-item"><span>✅</span> Recently Listed</a>
-            
             <div class="mt-8 mb-4 px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Market Data</div>
             <a href="#" class="nav-item"><span>🔥</span> IPO GMP</a>
             <a href="#" class="nav-item"><span>📊</span> Subscription</a>
-            <a href="#" class="nav-item"><span>🔍</span> Allotment</a>
-            <a href="#" class="nav-item"><span>📰</span> Latest News</a>
         </nav>
     </aside>
 
@@ -39,13 +36,7 @@
         <header class="flex justify-between items-center mb-10">
             <div>
                 <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Market Analytics</h2>
-                <p class="text-slate-500">Track real-time data from www.ipowatch.in</p>
-            </div>
-            <div id="auth-section" class="flex items-center gap-3">
-                <div class="flex items-center bg-white border border-slate-200 rounded-full px-4 py-1.5 shadow-sm focus-within:border-indigo-500">
-                    <input id="login-email" type="email" placeholder="Enter email..." class="bg-transparent border-none text-sm outline-none w-44">
-                    <button class="bg-indigo-600 text-white px-5 py-1.5 rounded-full text-xs font-bold hover:bg-indigo-700">Login</button>
-                </div>
+                <p class="text-slate-500">Live IPO Data from www.ipowatch.in</p>
             </div>
         </header>
 
@@ -56,76 +47,77 @@
         </div>
 
         <div id="ipo-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <p class="text-slate-400 col-span-full text-center">Loading live market data...</p>
+            <p class="text-slate-400 col-span-full text-center">Bhai, data connect ho raha hai...</p>
         </div>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Use your real credentials here
-        const supabaseUrl = 'YOUR_SUPABASE_URL';
-        const supabaseKey = 'YOUR_SUPABASE_KEY';
+        // Aapki Keys maine yahan set kar di hain
+        const S_URL = 'https://blwjuzmvrvtfklthvfoz.supabase.co';
+        const S_KEY = 'sb_publishable_eJVOHdhBG6Rbbivp8vogLQ_8ADKpsOY';
         
-        // Fix: Changed name to supabaseClient to avoid 'already declared' error
-        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+        const dbClient = supabase.createClient(S_URL, S_KEY);
 
         async function displayIPOs(filterType = 'all') {
             const container = document.getElementById('ipo-list');
-            let query = supabaseClient.from('ipos').select('*').order('created_at', { ascending: false });
+            
+            try {
+                let query = dbClient.from('ipos').select('*').order('created_at', { ascending: false });
 
-            if (filterType !== 'all') {
-                query = query.eq('type', filterType);
+                if (filterType !== 'all') {
+                    query = query.eq('type', filterType);
+                }
+
+                const { data: ipos, error } = await query;
+
+                if (error) throw error;
+
+                if (!ipos || ipos.length === 0) {
+                    container.innerHTML = `<p class="text-slate-400 col-span-full text-center">Database khali hai, scraper chalao!</p>`;
+                    return;
+                }
+
+                container.innerHTML = ''; 
+
+                ipos.forEach(ipo => {
+                    const gmpVal = ipo.gmp && ipo.gmp !== 'N/A' ? ipo.gmp : 'Update Soon';
+                    const gmpCol = ipo.gmp && ipo.gmp !== 'N/A' ? 'text-green-600' : 'text-slate-400';
+
+                    container.innerHTML += `
+                        <div class="glass-card">
+                            <div class="flex justify-between items-start mb-6">
+                                <h3 class="font-bold text-xl text-slate-800">${ipo.name}</h3>
+                                <span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-1 rounded font-black uppercase">${ipo.type}</span>
+                            </div>
+                            <div class="space-y-4 mb-8">
+                                <div class="flex justify-between border-b border-slate-50 pb-2">
+                                    <span class="text-slate-400 text-sm">GMP</span>
+                                    <span class="${gmpCol} font-bold">${gmpVal}</span>
+                                </div>
+                                <div class="flex justify-between border-b border-slate-50 pb-2">
+                                    <span class="text-slate-400 text-sm">Dates</span>
+                                    <span class="text-slate-800 font-bold text-xs">${ipo.dates}</span>
+                                </div>
+                                <div class="flex justify-between border-b border-slate-50 pb-2">
+                                    <span class="text-slate-400 text-sm">Price</span>
+                                    <span class="text-slate-800 font-bold">${ipo.price_band}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400 text-sm">Size</span>
+                                    <span class="text-slate-800 font-bold">${ipo.subscription}</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 mt-4">
+                                <button class="bg-indigo-600 text-white py-3 rounded-xl text-xs font-bold hover:bg-indigo-700">View</button>
+                                <button class="bg-white border border-slate-200 text-slate-700 py-3 rounded-xl text-xs font-bold hover:bg-slate-50">Allotment</button>
+                            </div>
+                        </div>`;
+                });
+            } catch (err) {
+                console.error("Connection Error:", err);
+                container.innerHTML = `<p class="text-red-500 col-span-full text-center">Bhai connection fail hua: ${err.message}</p>`;
             }
-
-            const { data: ipos, error } = await query;
-
-            if (error) {
-                console.error('Error:', error);
-                container.innerHTML = `<p class="text-red-500 col-span-full text-center">Connection Error. Check Supabase Keys.</p>`;
-                return;
-            }
-
-            container.innerHTML = ''; 
-
-            if (!ipos || ipos.length === 0) {
-                container.innerHTML = `<p class="text-slate-400 col-span-full text-center">No IPOs found in database.</p>`;
-                return;
-            }
-
-            ipos.forEach(ipo => {
-                const gmpText = ipo.gmp && ipo.gmp !== 'N/A' ? ipo.gmp : 'Update Soon';
-                const gmpColor = ipo.gmp && ipo.gmp !== 'N/A' ? 'text-green-600' : 'text-slate-400';
-
-                container.innerHTML += `
-                    <div class="glass-card">
-                        <div class="flex justify-between items-start mb-6">
-                            <h3 class="font-bold text-xl text-slate-800">${ipo.name}</h3>
-                            <span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-1 rounded font-black uppercase">${ipo.type}</span>
-                        </div>
-                        <div class="space-y-4 mb-8">
-                            <div class="flex justify-between border-b border-slate-50 pb-2">
-                                <span class="text-slate-400 text-sm">GMP</span>
-                                <span class="${gmpColor} font-bold">${gmpText}</span>
-                            </div>
-                            <div class="flex justify-between border-b border-slate-50 pb-2">
-                                <span class="text-slate-400 text-sm">Dates</span>
-                                <span class="text-slate-800 font-bold text-xs">${ipo.dates}</span>
-                            </div>
-                            <div class="flex justify-between border-b border-slate-50 pb-2">
-                                <span class="text-slate-400 text-sm">Price</span>
-                                <span class="text-slate-800 font-bold">${ipo.price_band}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-slate-400 text-sm">Size</span>
-                                <span class="text-slate-800 font-bold">${ipo.subscription}</span>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3 mt-4">
-                            <button class="bg-indigo-600 text-white py-3 rounded-xl text-xs font-bold hover:bg-indigo-700">View</button>
-                            <button class="bg-white border border-slate-200 text-slate-700 py-3 rounded-xl text-xs font-bold hover:bg-slate-50">Allotment</button>
-                        </div>
-                    </div>`;
-            });
         }
 
         displayIPOs();
