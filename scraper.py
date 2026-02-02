@@ -21,7 +21,6 @@ def scrape_ipo_watch():
         for row in rows:
             cols = [c.get_text(strip=True) for c in row.find_all('td')]
             if len(cols) >= 5:
-                # Screenshot ke hisaab se 100% accurate mapping:
                 ipo_data = {
                     "name": cols[0],          # IPO / Stock
                     "dates": cols[1],         # Date
@@ -30,9 +29,7 @@ def scrape_ipo_watch():
                     "price_band": cols[4],    # IPO Price Band
                     "status": "Upcoming"      # Default status
                 }
-                
-                # Note: GMP column ko scraper touch nahi karega, 
-                # taaki aapka manual data delete na ho.
+                # Upsert command data push karega
                 supabase.table("ipos").upsert(ipo_data, on_conflict="name").execute()
                 print(f"Sync Complete: {cols[0]}")
                 
