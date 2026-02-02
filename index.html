@@ -7,23 +7,25 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; padding-bottom: 80px; transition: all 0.3s ease; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; padding-bottom: 80px; overflow-x: hidden; }
         
-        /* Sidebar Base Style */
-        .sidebar { width: 280px; height: 100vh; position: fixed; left: 0; top: 0; background: white; border-right: 1px solid #e2e8f0; z-index: 50; display: flex; flex-direction: column; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; }
-        .main-content { margin-left: 280px; padding: 40px; transition: all 0.3s ease; }
+        /* Sidebar Base */
+        .sidebar { width: 280px; height: 100vh; position: fixed; left: 0; top: 0; background: white; border-right: 1px solid #e2e8f0; z-index: 50; display: flex; flex-direction: column; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        /* Collapsed State Class */
+        /* Main Content Base */
+        .main-content { margin-left: 280px; padding: 40px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); min-height: 100vh; }
+        
+        /* Collapsed State Logic */
         .sidebar.collapsed { width: 80px; }
         .sidebar.collapsed:hover { width: 280px; box-shadow: 10px 0 30px rgba(0,0,0,0.05); }
-        .sidebar.collapsed + .main-content { margin-left: 80px; }
+        
+        /* Auto-Adjust Main Body when Sidebar Collapses */
+        .sidebar.collapsed ~ .main-content { margin-left: 80px; }
 
-        /* Icon & Text visibility in collapsed mode */
-        .nav-text { transition: opacity 0.2s; white-space: nowrap; }
-        .sidebar.collapsed .nav-text { opacity: 0; }
-        .sidebar.collapsed:hover .nav-text { opacity: 1; }
-        .sidebar.collapsed .logo-text { opacity: 0; }
-        .sidebar.collapsed:hover .logo-text { opacity: 1; }
+        /* Text visibility during collapse */
+        .nav-text, .logo-text { transition: opacity 0.2s; white-space: nowrap; }
+        .sidebar.collapsed .nav-text, .sidebar.collapsed .logo-text { opacity: 0; pointer-events: none; }
+        .sidebar.collapsed:hover .nav-text, .sidebar.collapsed:hover .logo-text { opacity: 1; pointer-events: auto; }
 
         @media (max-width: 1024px) {
             .sidebar { display: none; }
@@ -41,7 +43,7 @@
 
     <aside id="sidebar" class="sidebar p-4">
         <div class="flex items-center justify-between mb-10 px-2 min-h-[40px]">
-            <span class="logo-text text-2xl font-black text-indigo-600 transition-opacity">IPOMoney</span>
+            <span class="logo-text text-2xl font-black text-indigo-600">IPOMoney</span>
             <button onclick="toggleSidebar()" class="p-2 hover:bg-slate-100 rounded-lg text-slate-500">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -63,14 +65,6 @@
         </nav>
     </aside>
 
-    <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around py-3 z-50 shadow-2xl">
-        <button class="text-indigo-600 flex flex-col items-center"><span class="text-xl">🏠</span><span class="text-[9px] font-bold">Home</span></button>
-        <button class="text-slate-400 flex flex-col items-center"><span class="text-xl">🔥</span><span class="text-[9px] font-bold">GMP</span></button>
-        <button class="text-slate-400 flex flex-col items-center"><span class="text-xl">📊</span><span class="text-[9px] font-bold">Subs</span></button>
-        <button class="text-slate-400 flex flex-col items-center"><span class="text-xl">🔍</span><span class="text-[9px] font-bold">Allot</span></button>
-        <button class="text-slate-400 flex flex-col items-center"><span class="text-xl">📰</span><span class="text-[9px] font-bold">News</span></button>
-    </div>
-
     <main class="main-content">
         <header class="mb-8">
             <h2 class="text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">Market Analytics</h2>
@@ -87,13 +81,20 @@
         </div>
     </main>
 
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around py-3 z-50 shadow-2xl">
+        <button class="text-indigo-600 flex flex-col items-center"><span class="text-xl">🏠</span><span class="text-[9px] font-bold">Home</span></button>
+        <button class="text-slate-400 flex flex-col items-center"><span class="text-xl">🔥</span><span class="text-[9px] font-bold">GMP</span></button>
+        <button class="text-slate-400 flex flex-col items-center"><span class="text-xl">📊</span><span class="text-[9px] font-bold">Subs</span></button>
+        <button class="text-slate-400 flex flex-col items-center"><span class="text-xl">🔍</span><span class="text-[9px] font-bold">Allot</span></button>
+        <button class="text-slate-400 flex flex-col items-center"><span class="text-xl">📰</span><span class="text-[9px] font-bold">News</span></button>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const S_URL = 'https://blwjuzmvrvtfklthvfoz.supabase.co';
         const S_KEY = 'sb_publishable_eJVOHdhBG6Rbbivp8vogLQ_8ADKpsOY';
         const dbClient = supabase.createClient(S_URL, S_KEY);
 
-        // Sidebar Toggle Logic
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('collapsed');
         }
@@ -127,14 +128,14 @@
                     container.innerHTML += `
                         <div class="glass-card">
                             <div class="flex justify-between items-start mb-4">
-                                <h3 class="font-bold text-lg text-slate-800">${ipo.name}</h3>
+                                <h3 class="font-bold text-lg text-slate-800 leading-tight">${ipo.name}</h3>
                                 <span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-1 rounded font-black uppercase">${ipo.type}</span>
                             </div>
                             <div class="space-y-3 mb-6">
-                                <div class="flex justify-between border-b border-slate-50 pb-2"><span class="text-slate-400 text-xs">GMP</span><span class="${gmpCol} font-bold text-sm">${gmpVal}</span></div>
-                                <div class="flex justify-between border-b border-slate-50 pb-2"><span class="text-slate-400 text-xs">Price</span><span class="text-slate-800 font-bold text-sm">${ipo.price_band}</span></div>
+                                <div class="flex justify-between border-b border-slate-50 pb-2"><span class="text-slate-400 text-xs font-medium">GMP</span><span class="${gmpCol} font-bold text-sm">${gmpVal}</span></div>
+                                <div class="flex justify-between border-b border-slate-50 pb-2"><span class="text-slate-400 text-xs font-medium">Dates</span><span class="text-slate-800 font-bold text-[10px]">${ipo.dates}</span></div>
                             </div>
-                            <div class="grid grid-cols-2 gap-2">
+                            <div class="grid grid-cols-2 gap-2 mt-4">
                                 <button class="bg-indigo-600 text-white py-2.5 rounded-xl text-[10px] font-bold">Details</button>
                                 <button class="bg-white border border-slate-200 text-slate-700 py-2.5 rounded-xl text-[10px] font-bold">Allotment</button>
                             </div>
