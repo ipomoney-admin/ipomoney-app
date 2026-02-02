@@ -15,27 +15,32 @@ def scrape_ipo_watch():
         response = requests.get(url, headers=headers, timeout=15)
         soup = BeautifulSoup(response.text, 'html.parser')
         table = soup.find('table')
-        if not table: return
+        if not table: 
+            print("Table nahi mili!")
+            return
 
         rows = table.find_all('tr')[1:] 
         for row in rows:
             cols = [c.get_text(strip=True) for c in row.find_all('td')]
             if len(cols) >= 5:
-                # index 1 usually has GMP, index 2 has Dates
                 ipo_data = {
                     "name": cols[0],          
                     "gmp": cols[1],           
                     "dates": cols[2],         
                     "type": cols[3],          
                     "price_band": cols[4],
-                    "subscription": "Size: " + cols[5] if len(cols) > 5 else "N/A",
-                    "status": "Upcoming"      
+                    "status": "Upcoming" # As per locked design
                 }
+                
+                # Sirf tabhi add karo agar Supabase mein column bana liya hai
+                if len(cols) > 5:
+                    ipo_data["subscription"] = cols[5]
+
                 supabase.table("ipos").upsert(ipo_data, on_conflict="name").execute()
-                print(f"Final Sync: {cols[0]}")
+                print(f"Success: {cols[0]}")
                 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Bhai, error abhi bhi hai: {e}")
 
 if __name__ == "__main__":
     scrape_ipo_watch()
