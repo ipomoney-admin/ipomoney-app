@@ -1,53 +1,98 @@
-<nav class="sidebar border-r bg-white p-6 flex flex-col shadow-sm">
-    <h1 class="text-2xl font-black text-indigo-600 mb-10 tracking-tight">IPOMoney</h1>
-    <div class="space-y-2 flex-1 overflow-y-auto custom-scrollbar">
-        <a href="#" class="flex items-center space-x-3 p-3 bg-indigo-50 text-indigo-600 rounded-xl font-bold">
-            <span>🏠</span> <span>Dashboard</span>
-        </a>
-        <a href="#" class="flex items-center space-x-3 p-3 text-slate-600 hover:bg-slate-50 rounded-xl transition">
-            <span>🚀</span> <span>Live IPOs</span>
-        </a>
-        <a href="#" class="flex items-center space-x-3 p-3 text-slate-600 hover:bg-slate-50 rounded-xl transition">
-            <span>📅</span> <span>Upcoming</span>
-        </a>
-        <a href="#" class="flex items-center space-x-3 p-3 text-slate-600 hover:bg-slate-50 rounded-xl transition">
-            <span>✅</span> <span>Recently Listed</span>
-        </a>
-        
-        <div class="pt-4 pb-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Market Data</div>
-        
-        <a href="#" class="flex items-center space-x-3 p-3 text-slate-600 hover:bg-slate-50 rounded-xl transition">
-            <span>🔥</span> <span>IPO GMP</span>
-        </a>
-        <a href="#" class="flex items-center space-x-3 p-3 text-slate-600 hover:bg-slate-50 rounded-xl transition">
-            <span>📊</span> <span>IPO Subscription</span>
-        </a>
-        <a href="#" class="flex items-center space-x-3 p-3 text-slate-600 hover:bg-slate-50 rounded-xl transition">
-            <span>🔍</span> <span>IPO Allotment</span>
-        </a>
-        <a href="#" class="flex items-center space-x-3 p-3 text-slate-600 hover:bg-slate-50 rounded-xl transition">
-            <span>📰</span> <span>IPO Latest News</span>
-        </a>
-    </div>
-</nav>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPOMoney | Professional Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f9fafb; }
+        .sidebar { width: 280px; height: 100vh; position: fixed; left: 0; top: 0; background: white; border-right: 1px solid #e5e7eb; padding: 24px; z-index: 50; }
+        .main-content { margin-left: 280px; padding: 40px; min-height: 100vh; }
+        .glass-card { background: white; border: 1px solid #e5e7eb; border-radius: 16px; padding: 24px; transition: all 0.3s ease; }
+        .glass-card:hover { border-color: #6366f1; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px; color: #4b5563; font-weight: 600; border-radius: 12px; transition: 0.2s; margin-bottom: 4px; }
+        .nav-link:hover { background: #f3f4f6; color: #111827; }
+        .nav-link.active { background: #eef2ff; color: #4f46e5; }
+    </style>
+</head>
+<body>
 
-<main class="main-content">
-    <header class="flex justify-between items-center mb-10">
-        <div>
-            <h2 class="text-3xl font-extrabold text-slate-800">Market Overview</h2>
-            <p class="text-slate-500 text-sm">Real-time IPO analytics & subscription data.</p>
-        </div>
-        
-        <div id="auth-controls" class="flex items-center space-x-4">
-            <div id="login-form-top" class="flex items-center bg-white border rounded-full px-2 py-1 shadow-sm">
-                <input id="auth-email-top" type="email" placeholder="Email" class="border-none bg-transparent px-3 py-1 text-sm focus:ring-0 w-40">
-                <button onclick="handleLogin()" class="bg-indigo-600 text-white px-4 py-2 rounded-full text-xs font-bold hover:bg-indigo-700 transition">Login</button>
-            </div>
-            <div id="user-profile" class="hidden flex items-center space-x-3 bg-white border px-4 py-2 rounded-full">
-                <span id="user-email-display" class="text-sm font-semibold text-slate-700"></span>
-                <button onclick="_supabase.auth.signOut()" class="text-xs text-red-500 font-bold">Logout</button>
-            </div>
-        </div>
-    </header>
+    <aside class="sidebar">
+        <div class="text-2xl font-black text-indigo-600 mb-10 tracking-tight">IPOMoney</div>
+        <nav>
+            <a href="#" class="nav-link active"><span>🏠</span> Dashboard</a>
+            <a href="#" class="nav-link"><span>🚀</span> Live IPOs</a>
+            <a href="#" class="nav-link"><span>📅</span> Upcoming</a>
+            <a href="#" class="nav-link"><span>✅</span> Recently Listed</a>
+            
+            <div class="mt-8 mb-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Market Data</div>
+            <a href="#" class="nav-link"><span>🔥</span> IPO GMP</a>
+            <a href="#" class="nav-link"><span>📊</span> Subscription</a>
+            <a href="#" class="nav-link"><span>🔍</span> Allotment</a>
+            <a href="#" class="nav-link"><span>📰</span> Latest News</a>
+        </nav>
+    </aside>
 
+    <main class="main-content">
+        <header class="flex justify-between items-center mb-10">
+            <div>
+                <h2 class="text-3xl font-extrabold text-gray-900">Market Overview</h2>
+                <p class="text-gray-500">Track all Indian IPOs with real-time data.</p>
+            </div>
+            
+            <div id="auth-header" class="flex items-center gap-3">
+                <div id="login-form" class="flex items-center bg-white border border-gray-200 rounded-full pl-4 pr-1 py-1 shadow-sm">
+                    <input id="email-input" type="email" placeholder="Email login..." class="bg-transparent border-none text-sm focus:ring-0 outline-none w-40">
+                    <button onclick="handleLogin()" class="bg-indigo-600 text-white px-5 py-2 rounded-full text-xs font-bold hover:bg-indigo-700 transition">Login</button>
+                </div>
+                <div id="user-info" class="hidden items-center gap-3">
+                    <span id="user-display" class="text-sm font-bold text-gray-700 bg-gray-100 px-4 py-2 rounded-full border"></span>
+                    <button onclick="logout()" class="text-xs text-red-500 font-bold hover:underline">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex gap-3 mb-10">
+            <button class="px-6 py-2 bg-gray-900 text-white rounded-full text-sm font-bold shadow-lg">Mainboard</button>
+            <button class="px-6 py-2 bg-white border border-gray-200 text-gray-600 rounded-full text-sm font-bold hover:bg-gray-50">SME IPO</button>
+            <button class="px-6 py-2 bg-white border border-gray-200 text-gray-600 rounded-full text-sm font-bold hover:bg-gray-50">Upcoming</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="glass-card">
+                <div class="flex justify-between items-start mb-6">
+                    <h3 class="font-bold text-xl text-gray-900">Example IPO Ltd</h3>
+                    <span class="bg-green-100 text-green-700 text-[10px] px-2 py-1 rounded font-black uppercase">Live</span>
+                </div>
+                
+                <div class="space-y-4 mb-8">
+                    <div class="flex justify-between">
+                        <span class="text-gray-400 text-sm">GMP</span>
+                        <span class="text-green-600 font-bold">₹145 (38%)</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400 text-sm">Subscription</span>
+                        <span class="text-gray-900 font-bold">14.2x</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400 text-sm">Price Band</span>
+                        <span class="text-gray-900 font-bold">₹580 - ₹610</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <button class="bg-gray-900 text-white py-3 rounded-xl text-xs font-bold hover:bg-black transition">Apply Now</button>
+                    <button class="bg-white border border-gray-200 text-gray-700 py-3 rounded-xl text-xs font-bold hover:bg-gray-50 transition">Allotment</button>
+                </div>
+            </div>
+        </div>
     </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase Logic...
+    </script>
+</body>
+</html>
