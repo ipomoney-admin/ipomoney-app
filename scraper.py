@@ -15,32 +15,29 @@ def scrape_ipo_watch():
         response = requests.get(url, headers=headers, timeout=15)
         soup = BeautifulSoup(response.text, 'html.parser')
         table = soup.find('table')
-        if not table: 
-            print("Table nahi mili!")
-            return
+        if not table: return
 
         rows = table.find_all('tr')[1:] 
         for row in rows:
             cols = [c.get_text(strip=True) for c in row.find_all('td')]
             if len(cols) >= 5:
+                # Screenshot ke hisaab se 100% accurate mapping:
                 ipo_data = {
-                    "name": cols[0],          
-                    "gmp": cols[1],           
-                    "dates": cols[2],         
-                    "type": cols[3],          
-                    "price_band": cols[4],
-                    "status": "Upcoming" # As per locked design
+                    "name": cols[0],          # IPO / Stock
+                    "dates": cols[1],         # Date
+                    "type": cols[2],          # IPO Type
+                    "subscription": cols[3],  # IPO Size (Abhi isme size jayega)
+                    "price_band": cols[4],    # IPO Price Band
+                    "status": "Upcoming"      # Default status
                 }
                 
-                # Sirf tabhi add karo agar Supabase mein column bana liya hai
-                if len(cols) > 5:
-                    ipo_data["subscription"] = cols[5]
-
+                # Note: GMP column ko scraper touch nahi karega, 
+                # taaki aapka manual data delete na ho.
                 supabase.table("ipos").upsert(ipo_data, on_conflict="name").execute()
-                print(f"Success: {cols[0]}")
+                print(f"Sync Complete: {cols[0]}")
                 
     except Exception as e:
-        print(f"Bhai, error abhi bhi hai: {e}")
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
     scrape_ipo_watch()
