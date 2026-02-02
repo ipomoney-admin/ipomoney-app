@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPOMoney | Market Dynamics</title>
+    <title>IPOMoney | Elite Market Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; padding-bottom: 80px; }
         .sidebar { width: 280px; height: 100vh; position: fixed; left: 0; top: 0; background: white; border-right: 1px solid #e2e8f0; z-index: 50; display: flex; flex-direction: column; }
         .main-content { margin-left: 280px; padding: 40px; }
-        @media (max-width: 1024px) { .sidebar { display: none; } .main-content { margin-left: 0; padding: 20px; } }
+        @media (max-width: 1024px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; padding: 20px; }
+        }
         .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; color: #64748b; font-weight: 600; transition: 0.2s; text-decoration: none; margin-bottom: 4px; font-size: 14px; }
+        .nav-item:hover { background: #f1f5f9; color: #0f172a; }
         .nav-item.active { background: #eef2ff; color: #4f46e5; }
-        .glass-card { background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 24px; transition: 0.3s; height: 100%; display: flex; flex-direction: column; }
-        .section-title { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #6366f1; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; }
-        .section-title::after { content: ""; height: 1px; background: #e2e8f0; flex: 1; }
+        .glass-card { background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 24px; transition: 0.3s; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
@@ -32,6 +34,7 @@
             <a href="#" class="nav-item"><span>🔥</span> IPO GMP</a>
             <a href="#" class="nav-item"><span>📊</span> Subscription</a>
             <a href="#" class="nav-item"><span>🔍</span> Allotment</a>
+            <a href="#" class="nav-item"><span>📰</span> Latest News</a>
         </nav>
     </aside>
 
@@ -40,8 +43,14 @@
             <h2 class="text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">Market Analytics</h2>
         </header>
 
-        <div id="ipo-sections" class="space-y-12">
-            <p class="text-slate-400 text-center">Organizing IPOs by live dates...</p>
+        <div id="filter-container" class="flex gap-3 mb-8 overflow-x-auto no-scrollbar pb-2">
+            <button id="btn-Mainboard" onclick="displayIPOs('Mainboard')" class="filter-btn whitespace-nowrap px-6 py-2.5 bg-slate-900 text-white rounded-full text-xs font-bold shadow-lg transition-all duration-200">Mainboard</button>
+            <button id="btn-SME" onclick="displayIPOs('SME')" class="filter-btn whitespace-nowrap px-6 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-full text-xs font-bold transition-all duration-200">SME IPO</button>
+            <button id="btn-all" onclick="displayIPOs('all')" class="filter-btn whitespace-nowrap px-6 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-full text-xs font-bold transition-all duration-200">Show All</button>
+        </div>
+
+        <div id="ipo-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <p class="text-slate-400 col-span-full text-center">Loading Market Data...</p>
         </div>
     </main>
 
@@ -58,74 +67,55 @@
         const S_KEY = 'sb_publishable_eJVOHdhBG6Rbbivp8vogLQ_8ADKpsOY';
         const dbClient = supabase.createClient(S_URL, S_KEY);
 
-        function parseIPODate(dateStr) {
-            const currentYear = 2026; // Setting year as per requirement
-            return new Date(`${dateStr.trim()}, ${currentYear}`);
-        }
+        async function displayIPOs(filterType = 'all') {
+            // Button Selection Visual Logic
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.replace('bg-slate-900', 'bg-white');
+                btn.classList.replace('text-white', 'text-slate-600');
+                btn.classList.add('border', 'border-slate-200');
+                btn.classList.remove('shadow-lg');
+            });
+            const active = document.getElementById(`btn-${filterType}`);
+            if(active) {
+                active.classList.replace('bg-white', 'bg-slate-900');
+                active.classList.replace('text-slate-600', 'text-white');
+                active.classList.remove('border', 'border-slate-200');
+                active.classList.add('shadow-lg');
+            }
 
-        function createCard(ipo) {
-            const gmpVal = ipo.gmp || 'Update Soon';
-            const gmpCol = ipo.gmp && ipo.gmp !== 'Update Soon' ? 'text-green-600' : 'text-slate-400';
-            return `
-                <div class="glass-card">
-                    <div class="flex justify-between items-start mb-4">
-                        <h3 class="font-bold text-lg text-slate-800 leading-tight">${ipo.name}</h3>
-                        <span class="bg-indigo-50 text-indigo-600 text-[9px] px-2 py-1 rounded font-black uppercase">${ipo.type}</span>
-                    </div>
-                    <div class="space-y-3 mb-6">
-                        <div class="flex justify-between border-b border-slate-50 pb-2"><span class="text-slate-400 text-xs font-medium italic">GMP</span><span class="${gmpCol} font-bold text-sm">${gmpVal}</span></div>
-                        <div class="flex justify-between border-b border-slate-50 pb-2"><span class="text-slate-400 text-xs font-medium italic">Dates</span><span class="text-slate-800 font-bold text-[10px]">${ipo.dates}</span></div>
-                        <div class="flex justify-between"><span class="text-slate-400 text-xs font-medium italic">Price</span><span class="text-slate-800 font-bold text-sm">${ipo.price_band}</span></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 mt-auto">
-                        <button class="bg-indigo-600 text-white py-2.5 rounded-xl text-[10px] font-bold hover:bg-indigo-700 transition">Details</button>
-                        <button class="bg-white border border-slate-200 text-slate-700 py-2.5 rounded-xl text-[10px] font-bold hover:bg-slate-50 transition">Allotment</button>
-                    </div>
-                </div>`;
-        }
-
-        async function loadDashboard() {
-            const container = document.getElementById('ipo-sections');
+            const container = document.getElementById('ipo-list');
             try {
-                const { data: ipos, error } = await dbClient.from('ipos').select('*').order('created_at', { ascending: false });
+                let query = dbClient.from('ipos').select('*').order('created_at', { ascending: false });
+                if (filterType !== 'all') query = query.eq('type', filterType);
+                const { data, error } = await query;
                 if (error) throw error;
 
-                const today = new Date('2026-02-03'); // Today's Date
-                today.setHours(0,0,0,0);
-
-                const ongoingMain = [];
-                const ongoingSME = [];
-                const upcomingMain = [];
-                const upcomingSME = [];
-
-                ipos.forEach(ipo => {
-                    const dateParts = ipo.dates.split('-').map(d => d.trim());
-                    const openDate = parseIPODate(dateParts[0]);
-                    const closeDate = dateParts[1] ? parseIPODate(dateParts[1]) : openDate;
-
-                    if (openDate <= today && closeDate >= today) {
-                        if (ipo.type === 'Mainboard') ongoingMain.push(ipo);
-                        else ongoingSME.push(ipo);
-                    } else if (openDate > today) {
-                        if (ipo.type === 'Mainboard') upcomingMain.push(ipo);
-                        else upcomingSME.push(ipo);
-                    }
+                container.innerHTML = ''; 
+                data.forEach(ipo => {
+                    const gmpVal = ipo.gmp || 'Update Soon';
+                    const gmpCol = ipo.gmp && ipo.gmp !== 'Update Soon' ? 'text-green-600' : 'text-slate-400';
+                    container.innerHTML += `
+                        <div class="glass-card">
+                            <div class="flex justify-between items-start mb-4">
+                                <h3 class="font-bold text-lg text-slate-800 leading-tight">${ipo.name}</h3>
+                                <span class="bg-indigo-50 text-indigo-600 text-[10px] px-2 py-1 rounded font-black uppercase tracking-tighter">${ipo.type}</span>
+                            </div>
+                            <div class="space-y-3 mb-6">
+                                <div class="flex justify-between border-b border-slate-50 pb-2"><span class="text-slate-400 text-xs font-medium italic">GMP</span><span class="${gmpCol} font-bold text-sm">${gmpVal}</span></div>
+                                <div class="flex justify-between border-b border-slate-50 pb-2"><span class="text-slate-400 text-xs font-medium italic">Dates</span><span class="text-slate-800 font-bold text-[10px]">${ipo.dates}</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400 text-xs font-medium italic">Price Band</span><span class="text-slate-800 font-bold text-sm">${ipo.price_band}</span></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 mt-4">
+                                <button class="bg-indigo-600 text-white py-2.5 rounded-xl text-[10px] font-bold hover:bg-indigo-700 transition">Details</button>
+                                <button class="bg-white border border-slate-200 text-slate-700 py-2.5 rounded-xl text-[10px] font-bold hover:bg-slate-50 transition">Allotment</button>
+                            </div>
+                        </div>`;
                 });
-
-                let html = '';
-                const renderGrid = (list) => `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">${list.map(createCard).join('')}</div>`;
-
-                if(ongoingMain.length) html += `<section class="mb-10"><h3 class="section-title">Mainboard IPOs (Ongoing)</h3>${renderGrid(ongoingMain)}</section>`;
-                if(ongoingSME.length) html += `<section class="mb-10"><h3 class="section-title">SME IPOs (Ongoing)</h3>${renderGrid(ongoingSME)}</section>`;
-                if(upcomingMain.length) html += `<section class="mb-10"><h3 class="section-title">Mainboard (Upcoming)</h3>${renderGrid(upcomingMain)}</section>`;
-                if(upcomingSME.length) html += `<section class="mb-10"><h3 class="section-title">SME (Upcoming)</h3>${renderGrid(upcomingSME)}</section>`;
-
-                container.innerHTML = html || '<p class="text-center text-slate-400 font-bold">Abhi koi live IPO nahi mil raha hai.</p>';
             } catch (err) {
-                container.innerHTML = `<p class="text-red-500 text-center font-bold">Error: ${err.message}</p>`;
+                container.innerHTML = `<p class="text-red-500 text-center col-span-full">${err.message}</p>`;
             }
         }
-        loadDashboard();
+        displayIPOs('Mainboard'); // Default load
     </script>
 </body>
 </html>
