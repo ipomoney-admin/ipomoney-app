@@ -9,35 +9,35 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; padding-bottom: 80px; }
         .sidebar { width: 280px; height: 100vh; position: fixed; left: 0; top: 0; background: white; border-right: 1px solid #e2e8f0; z-index: 50; display: flex; flex-direction: column; }
-        .main-content { margin-left: 280px; padding: 40px; transition: margin-left 0.3s ease; }
+        .main-content { margin-left: 280px; padding: 40px; transition: all 0.3s ease; }
         @media (max-width: 1024px) { .sidebar { display: none; } .main-content { margin-left: 0; padding: 20px; } }
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; color: #64748b; font-weight: 600; transition: 0.2s; text-decoration: none; margin-bottom: 4px; font-size: 14px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; color: #64748b; font-weight: 600; transition: 0.2s; text-decoration: none; margin-bottom: 4px; font-size: 14px; cursor: pointer; }
+        .nav-item:hover { background: #f1f5f9; color: #0f172a; }
         .nav-item.active { background: #eef2ff; color: #4f46e5; }
         .glass-card { background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 24px; transition: 0.3s; height: 100%; display: flex; flex-direction: column; }
-        .glass-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
     <aside class="sidebar p-6">
-        <div class="text-2xl font-black text-indigo-600 mb-10 px-2 underline decoration-indigo-200 decoration-4">IPOMoney</div>
+        <div class="text-2xl font-black text-indigo-600 mb-10 px-2 underline decoration-indigo-200 decoration-4 cursor-pointer" onclick="navigateTo('dashboard')">IPOMoney</div>
         <nav class="flex-1 overflow-y-auto no-scrollbar pb-10">
-            <a href="#" class="nav-item active"><span>🏠</span> Dashboard</a>
-            <a href="#" class="nav-item"><span>🚀</span> Live IPOs</a>
-            <a href="#" class="nav-item"><span>📅</span> Upcoming</a>
-            <a href="#" class="nav-item"><span>✅</span> Recently Listed</a>
+            <div id="nav-dashboard" onclick="navigateTo('dashboard')" class="nav-item active"><span>🏠</span> Dashboard</div>
+            <div id="nav-live" onclick="navigateTo('live')" class="nav-item"><span>🚀</span> Live IPOs</div>
+            <div id="nav-upcoming" onclick="navigateTo('upcoming')" class="nav-item"><span>📅</span> Upcoming</div>
+            <div id="nav-listed" onclick="navigateTo('listed')" class="nav-item"><span>✅</span> Recently Listed</div>
             <div class="mt-8 mb-4 px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Market Data</div>
-            <a href="#" class="nav-item"><span>🔥</span> IPO GMP</a>
-            <a href="#" class="nav-item"><span>📊</span> Subscription</a>
-            <a href="#" class="nav-item"><span>🔍</span> Allotment</a>
-            <a href="#" class="nav-item"><span>📰</span> Latest News</a>
+            <div id="nav-gmp" onclick="navigateTo('gmp')" class="nav-item"><span>🔥</span> IPO GMP</div>
+            <div id="nav-subs" onclick="navigateTo('subs')" class="nav-item"><span>📊</span> Subscription</div>
+            <div id="nav-allot" onclick="navigateTo('allot')" class="nav-item"><span>🔍</span> Allotment</div>
+            <div id="nav-news" onclick="navigateTo('news')" class="nav-item"><span>📰</span> Latest News</div>
         </nav>
     </aside>
 
     <main class="main-content">
         <header class="mb-8">
-            <h2 class="text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">Market Analytics</h2>
+            <h2 id="page-title" class="text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">Market Analytics</h2>
         </header>
 
         <div id="filter-container" class="flex gap-3 mb-8 overflow-x-auto no-scrollbar pb-2">
@@ -47,15 +47,15 @@
         </div>
 
         <div id="ipo-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <p class="text-slate-400 col-span-full text-center py-10">Syncing with Market Data...</p>
+            <p class="text-slate-400 col-span-full text-center py-10">Syncing Market Data...</p>
         </div>
     </main>
 
     <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around py-3 z-50 shadow-2xl">
-        <button class="text-indigo-600 flex flex-col items-center"><span class="text-xl">🏠</span><span class="text-[9px] font-bold">Home</span></button>
-        <button class="text-slate-400 flex flex-col items-center"><span class="text-xl">🔥</span><span class="text-[9px] font-bold">GMP</span></button>
-        <button class="text-slate-400 flex flex-col items-center"><span class="text-xl">📊</span><span class="text-[9px] font-bold">Subs</span></button>
-        <button class="text-slate-400 flex flex-col items-center"><span class="text-xl">🔍</span><span class="text-[9px] font-bold">Allot</span></button>
+        <button onclick="navigateTo('dashboard')" class="flex flex-col items-center"><span class="text-xl">🏠</span><span class="text-[9px] font-bold">Home</span></button>
+        <button onclick="navigateTo('gmp')" class="flex flex-col items-center"><span class="text-xl">🔥</span><span class="text-[9px] font-bold">GMP</span></button>
+        <button onclick="navigateTo('subs')" class="flex flex-col items-center"><span class="text-xl">📊</span><span class="text-[9px] font-bold">Subs</span></button>
+        <button onclick="navigateTo('allot')" class="flex flex-col items-center"><span class="text-xl">🔍</span><span class="text-[9px] font-bold">Allot</span></button>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -64,65 +64,73 @@
         const S_KEY = 'sb_publishable_eJVOHdhBG6Rbbivp8vogLQ_8ADKpsOY';
         const dbClient = supabase.createClient(S_URL, S_KEY);
 
-        // DSA Store: O(1) Lookup Cache
         let ipoStore = { all: [], Mainboard: [], SME: [] };
 
-        // Optimized Template Function
-        const renderCard = (ipo) => {
-            const gmpVal = ipo.gmp || 'Update Soon';
-            const gmpCol = ipo.gmp && ipo.gmp !== 'Update Soon' ? 'text-green-600' : 'text-slate-400';
-            return `
-                <div class="glass-card">
-                    <div class="flex justify-between items-start mb-4">
-                        <h3 class="font-bold text-lg text-slate-800 leading-tight">${ipo.name}</h3>
-                        <span class="bg-indigo-50 text-indigo-600 text-[10px] px-2 py-1 rounded font-black uppercase">${ipo.type}</span>
-                    </div>
-                    <div class="space-y-3 mb-6">
-                        <div class="flex justify-between border-b border-slate-50 pb-2"><span class="text-slate-400 text-xs font-medium italic">GMP</span><span class="${gmpCol} font-bold text-sm">${gmpVal}</span></div>
-                        <div class="flex justify-between border-b border-slate-50 pb-2"><span class="text-slate-400 text-xs font-medium italic">Dates</span><span class="text-slate-800 font-bold text-[10px]">${ipo.dates}</span></div>
-                        <div class="flex justify-between"><span class="text-slate-400 text-xs font-medium italic">Price Band</span><span class="text-slate-800 font-bold text-sm">${ipo.price_band}</span></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 mt-auto">
-                        <button class="bg-indigo-600 text-white py-2.5 rounded-xl text-[10px] font-bold hover:shadow-md transition">Details</button>
-                        <button class="bg-white border border-slate-200 text-slate-700 py-2.5 rounded-xl text-[10px] font-bold hover:bg-slate-50 transition">Allotment</button>
-                    </div>
-                </div>`;
-        };
+        // NAVIGATION LOGIC (New)
+        function navigateTo(pageId) {
+            // Update Active Nav Style
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const activeNav = document.getElementById(`nav-${pageId}`);
+            if(activeNav) activeNav.classList.add('active');
 
-        async function displayIPOs(filterType = 'all') {
-            // UI Update: Button Active State
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.className = "filter-btn whitespace-nowrap px-6 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-full text-xs font-bold transition-all duration-200";
-            });
-            const active = document.getElementById(`btn-${filterType}`);
-            if(active) active.className = "filter-btn whitespace-nowrap px-6 py-2.5 bg-slate-900 text-white rounded-full text-xs font-bold shadow-lg transition-all duration-200";
-
+            const title = document.getElementById('page-title');
+            const filters = document.getElementById('filter-container');
             const container = document.getElementById('ipo-list');
 
-            // DSA Logic: Use cache if available for instant rendering
+            // Page Mapping
+            const titles = {
+                dashboard: 'Market Analytics', live: 'Live IPOs', upcoming: 'Upcoming IPOs',
+                listed: 'Recently Listed', gmp: 'IPO Grey Market Premium',
+                subs: 'Live Subscription', allot: 'Check Allotment Status', news: 'Latest Market News'
+            };
+
+            title.innerText = titles[pageId] || 'Market Data';
+            
+            if(pageId === 'dashboard') {
+                filters.style.display = 'flex';
+                displayIPOs('Mainboard');
+            } else {
+                filters.style.display = 'none';
+                container.innerHTML = `<div class="col-span-full py-20 text-center"><p class="text-slate-400 font-bold">${titles[pageId]} content will be linked here shortly.</p></div>`;
+            }
+        }
+
+        // CARD RENDERER
+        const renderCard = (ipo) => `
+            <div class="glass-card">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="font-bold text-lg text-slate-800 leading-tight">${ipo.name}</h3>
+                    <span class="bg-indigo-50 text-indigo-600 text-[10px] px-2 py-1 rounded font-black uppercase">${ipo.type}</span>
+                </div>
+                <div class="space-y-3 mb-6">
+                    <div class="flex justify-between border-b border-slate-50 pb-2"><span class="text-slate-400 text-xs font-medium italic">GMP</span><span class="text-green-600 font-bold text-sm">${ipo.gmp || 'N/A'}</span></div>
+                    <div class="flex justify-between border-b border-slate-50 pb-2"><span class="text-slate-400 text-xs font-medium italic">Dates</span><span class="text-slate-800 font-bold text-[10px]">${ipo.dates}</span></div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 mt-auto">
+                    <button class="bg-indigo-600 text-white py-2.5 rounded-xl text-[10px] font-bold">Details</button>
+                    <button class="bg-white border border-slate-200 text-slate-700 py-2.5 rounded-xl text-[10px] font-bold">Allotment</button>
+                </div>
+            </div>`;
+
+        async function displayIPOs(filterType = 'all') {
+            const container = document.getElementById('ipo-list');
             if (ipoStore.all.length > 0) {
                 container.innerHTML = ipoStore[filterType].map(renderCard).join('');
                 return;
             }
-
-            // Initial Fetch
             try {
                 const { data, error } = await dbClient.from('ipos').select('*').order('created_at', { ascending: false });
                 if (error) throw error;
-
-                // Memory Mapping
                 ipoStore.all = data;
                 ipoStore.Mainboard = data.filter(i => i.type === 'Mainboard');
                 ipoStore.SME = data.filter(i => i.type === 'SME');
-
                 container.innerHTML = ipoStore[filterType].map(renderCard).join('');
             } catch (err) {
-                container.innerHTML = `<p class="text-red-500 text-center col-span-full font-bold">Failed to load: ${err.message}</p>`;
+                container.innerHTML = `<p class="text-red-500 text-center col-span-full">${err.message}</p>`;
             }
         }
 
-        // Run on start
-        displayIPOs('Mainboard');
+        window.onload = () => navigateTo('dashboard');
     </script>
 </body>
 </html>
