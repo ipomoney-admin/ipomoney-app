@@ -3,188 +3,712 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPOMoney | Live Market Portal</title>
+    <title>IPO Money - Smart IPO Analysis & GMP Tracking</title>
+    <meta name="description" content="Get accurate IPO analysis, GMP tracking, subscription status, and expert recommendations. Free IPO intelligence platform.">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; padding-bottom: 80px; }
-        .sidebar { width: 280px; height: 100vh; position: fixed; left: 0; top: 0; background: white; border-right: 1px solid #e2e8f0; z-index: 50; display: flex; flex-direction: column; }
-        .main-content { margin-left: 280px; padding: 40px; transition: all 0.3s ease; }
-        @media (max-width: 1024px) { .sidebar { display: none; } .main-content { margin-left: 0; padding: 20px; } }
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; color: #64748b; font-weight: 600; transition: 0.2s; cursor: pointer; margin-bottom: 4px; font-size: 14px; }
-        .nav-item:hover { background: #f1f5f9; color: #0f172a; }
-        .nav-item.active { background: #eef2ff; color: #4f46e5; }
-        .glass-card { background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 24px; transition: 0.3s; display: flex; flex-direction: column; height: 100%; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            background-attachment: fixed;
+            color: #f8fafc;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Glassmorphism Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
+            box-shadow: 
+                0 8px 32px 0 rgba(0, 0, 0, 0.37),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(251, 191, 36, 0.3);
+            box-shadow: 
+                0 12px 48px 0 rgba(251, 191, 36, 0.15),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+        }
+        
+        /* Premium Button */
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            transition: all 0.2s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+        
+        .btn-gold {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #0f172a;
+            border: 1px solid rgba(251, 191, 36, 0.5);
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+            transition: all 0.2s;
+        }
+        
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(251, 191, 36, 0.5);
+        }
+        
+        /* Badge Styles */
+        .badge-mainboard {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge-sme {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Status Badge */
+        .status-live {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        .status-upcoming {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        .status-closed {
+            background: rgba(156, 163, 175, 0.2);
+            color: #d1d5db;
+            border: 1px solid rgba(156, 163, 175, 0.3);
+        }
+        
+        /* Score Display */
+        .score-strong-buy {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .score-buy {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+        
+        .score-neutral {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+        
+        .score-avoid {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #fbbf24;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(251, 191, 36, 0.5);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(251, 191, 36, 0.7);
+        }
     </style>
 </head>
 <body>
 
-    <aside class="sidebar p-6">
-        <div class="text-2xl font-black text-indigo-600 mb-10 px-2 underline decoration-indigo-200 decoration-4 cursor-pointer" onclick="navigateTo('dashboard')">IPOMoney</div>
-        <nav class="flex-1 overflow-y-auto no-scrollbar pb-10">
-            <div id="nav-dashboard" onclick="navigateTo('dashboard')" class="nav-item active"><span>🏠</span> Dashboard</div>
-            <div id="nav-live" onclick="navigateTo('live')" class="nav-item"><span>🚀</span> Live IPOs</div>
-            <div id="nav-upcoming" onclick="navigateTo('upcoming')" class="nav-item"><span>📅</span> Upcoming</div>
-            <div id="nav-listed" onclick="navigateTo('listed')" class="nav-item"><span>✅</span> Recently Listed</div>
-            <div class="mt-8 mb-4 px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-xs">Market Data</div>
-            <div id="nav-gmp" onclick="navigateTo('gmp')" class="nav-item"><span>🔥</span> IPO GMP</div>
-            <div id="nav-subs" onclick="navigateTo('subs')" class="nav-item"><span>📊</span> Subscription</div>
-            <div id="nav-allot" onclick="navigateTo('allot')" class="nav-item"><span>🔍</span> Allotment</div>
-            <div id="nav-news" onclick="navigateTo('news')" class="nav-item"><span>📰</span> Latest News</div>
-        </nav>
-    </aside>
-
-    <main class="main-content">
-        <header class="mb-8">
-            <h2 id="page-title" class="text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">Market Analytics</h2>
-        </header>
-
-        <div id="dynamic-container" class="space-y-12">
+    <!-- Header -->
+    <header class="glass-card mx-4 mt-4 p-6 mb-8 sticky top-4 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
+                    <span class="text-2xl">💰</span>
+                </div>
+                <h1 class="text-2xl font-black bg-gradient-to-r from-blue-400 to-amber-400 bg-clip-text text-transparent">
+                    IPO Money
+                </h1>
             </div>
+            
+            <nav class="hidden md:flex gap-6 text-sm font-semibold">
+                <a href="#" onclick="showSection('dashboard')" class="text-gray-300 hover:text-white transition">Dashboard</a>
+                <a href="#" onclick="showSection('live')" class="text-gray-300 hover:text-white transition">Live IPOs</a>
+                <a href="#" onclick="showSection('upcoming')" class="text-gray-300 hover:text-white transition">Upcoming</a>
+                <a href="#" onclick="showSection('gmp')" class="text-gray-300 hover:text-white transition">GMP</a>
+            </nav>
+            
+            <button onclick="showEmailSignup()" class="btn-gold px-6 py-2.5 rounded-full text-sm font-bold hidden md:block">
+                Get IPO Scores
+            </button>
+            
+            <!-- Mobile Menu Button -->
+            <button onclick="toggleMobileMenu()" class="md:hidden text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 pb-20">
+        
+        <!-- Hero Section -->
+        <section id="hero-section" class="text-center mb-16 fade-in">
+            <h2 class="text-5xl md:text-6xl font-black mb-4 bg-gradient-to-r from-white via-blue-100 to-amber-200 bg-clip-text text-transparent">
+                Smart IPO Intelligence
+            </h2>
+            <p class="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+                Get accurate GMP tracking, live subscription data, and AI-powered IPO Money Score - all free, forever.
+            </p>
+            <div class="flex gap-4 justify-center flex-wrap">
+                <button onclick="showSection('live')" class="btn-primary px-8 py-4 rounded-full text-sm font-bold">
+                    View Live IPOs
+                </button>
+                <button onclick="showEmailSignup()" class="glass-card px-8 py-4 rounded-full text-sm font-bold border-2 border-amber-500/30">
+                    Get Free Access
+                </button>
+            </div>
+        </section>
+
+        <!-- Dynamic Content Area -->
+        <div id="content-area">
+            <!-- Dashboard will load here -->
+        </div>
+
     </main>
 
-    <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around py-3 z-50 shadow-2xl">
-        <button onclick="navigateTo('dashboard')" class="flex flex-col items-center"><span class="text-xl">🏠</span><span class="text-[9px] font-bold">Home</span></button>
-        <button onclick="navigateTo('gmp')" class="flex flex-col items-center"><span class="text-xl">🔥</span><span class="text-[9px] font-bold">GMP</span></button>
-        <button onclick="navigateTo('subs')" class="flex flex-col items-center"><span class="text-xl">📊</span><span class="text-[9px] font-bold">Subs</span></button>
-        <button onclick="navigateTo('allot')" class="flex flex-col items-center"><span class="text-xl">🔍</span><span class="text-[9px] font-bold">Allot</span></button>
+    <!-- IPO Detail Modal -->
+    <div id="ipo-modal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-overlay absolute inset-0" onclick="closeModal()"></div>
+        <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+            <div class="glass-card max-w-4xl w-full max-h-[90vh] overflow-y-auto p-8">
+                <!-- Modal content will be inserted here -->
+                <div id="modal-content"></div>
+            </div>
+        </div>
     </div>
 
+    <!-- Email Signup Modal -->
+    <div id="email-modal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-overlay absolute inset-0" onclick="closeEmailModal()"></div>
+        <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+            <div class="glass-card max-w-md w-full p-8">
+                <h3 class="text-2xl font-bold mb-4">Get IPO Money Score Access</h3>
+                <p class="text-gray-400 mb-6">Enter your email to unlock IPO scores, GMP trends, and weekly reports - completely free!</p>
+                
+                <input 
+                    type="email" 
+                    id="email-input" 
+                    placeholder="your@email.com"
+                    class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 mb-4 focus:outline-none focus:border-amber-500"
+                >
+                
+                <button onclick="submitEmail()" class="btn-gold w-full py-3 rounded-xl font-bold mb-4">
+                    Get Free Access
+                </button>
+                
+                <button onclick="closeEmailModal()" class="w-full text-gray-400 text-sm hover:text-white transition">
+                    Maybe later
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loading" class="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-40 hidden">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <script>
-        const S_URL = 'https://blwjuzmvrvtfklthvfoz.supabase.co';
-        const S_KEY = 'sb_publishable_eJVOHdhBG6Rbbivp8vogLQ_8ADKpsOY';
-        const dbClient = supabase.createClient(S_URL, S_KEY);
+        // ============================================
+        // Configuration
+        // ============================================
+        const SUPABASE_URL = 'https://blwjuzmvrvtfklthvfoz.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsd2p1em12cnZ0ZmtsdGh2Zm96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg2NjE0NDMsImV4cCI6MjA1NDIzNzQ0M30.eJVOHdhBG6Rbbivp8vogLQ_8ADKpsOY_rGHl9LR6hME';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        let allIPOs = [];
+        let userEmail = null;
 
-        let ipoStore = { all: [], Mainboard: [], SME: [] };
+        // ============================================
+        // Initialize App
+        // ============================================
+        window.onload = function() {
+            loadDashboard();
+        };
 
-        // 1. Core Navigation Function
-        function navigateTo(pageId) {
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            const activeNav = document.getElementById(`nav-${pageId}`);
-            if(activeNav) activeNav.classList.add('active');
-
-            const title = document.getElementById('page-title');
-            const container = document.getElementById('dynamic-container');
-
-            const pageTitles = {
-                dashboard: 'Market Analytics', live: 'Live IPOs', upcoming: 'Upcoming IPOs',
-                listed: 'Recently Listed', gmp: 'Grey Market Premium (GMP)',
-                subs: 'Live Subscription', allot: 'Check Allotment Status', news: 'Latest Market News'
-            };
-
-            title.innerText = pageTitles[pageId] || 'Market Data';
-            
-            if(pageId === 'dashboard') {
-                loadDashboard();
-            } else {
-                container.innerHTML = `<div class="py-20 text-center"><p class="text-slate-400 font-bold">${pageTitles[pageId]} page is locked and ready for content.</p></div>`;
-            }
-        }
-
-        // 2. Fetch and Distribute Data
+        // ============================================
+        // Data Loading
+        // ============================================
         async function loadDashboard() {
-            const container = document.getElementById('dynamic-container');
-            container.innerHTML = '<p class="text-center py-20 text-slate-400">Syncing with Exchange Data...</p>';
-
+            showLoading();
+            
             try {
-                const { data, error } = await dbClient.from('ipos').select('*').order('created_at', { ascending: false });
+                // Fetch all IPOs with scores
+                const { data, error } = await supabase
+                    .from('ipos')
+                    .select(`
+                        *,
+                        ipo_scores (
+                            total_score,
+                            verdict
+                        )
+                    `)
+                    .order('created_at', { ascending: false });
+                
                 if (error) throw error;
-
-                ipoStore.all = data;
-                ipoStore.Mainboard = data.filter(i => i.type === 'Mainboard');
-                ipoStore.SME = data.filter(i => i.type === 'SME');
-
-                renderSectionedDashboard();
-            } catch (err) {
-                container.innerHTML = `<p class="text-red-500 text-center">Error: ${err.message}</p>`;
+                
+                allIPOs = data || [];
+                renderDashboard();
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('content-area').innerHTML = `
+                    <div class="glass-card p-8 text-center">
+                        <p class="text-red-400 mb-4">⚠️ Unable to load IPO data</p>
+                        <p class="text-gray-400 text-sm">${error.message}</p>
+                        <button onclick="loadDashboard()" class="btn-primary px-6 py-2 rounded-full mt-4 text-sm font-bold">
+                            Retry
+                        </button>
+                    </div>
+                `;
+            } finally {
+                hideLoading();
             }
         }
 
-        // 3. Render the Multi-Section Dashboard (As per your Idea)
-        function renderSectionedDashboard() {
-            const container = document.getElementById('dynamic-container');
+        // ============================================
+        // Render Dashboard
+        // ============================================
+        function renderDashboard() {
+            const liveIPOs = allIPOs.filter(i => i.status === 'Live');
+            const upcomingIPOs = allIPOs.filter(i => i.status === 'Upcoming');
+            const mainboardLive = liveIPOs.filter(i => i.type === 'Mainboard').slice(0, 3);
+            const smeLive = liveIPOs.filter(i => i.type === 'SME').slice(0, 6);
             
-            const main3 = ipoStore.Mainboard.slice(0, 3);
-            const sme6 = ipoStore.SME.slice(0, 6);
-
-            container.innerHTML = `
-                <section>
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xl font-extrabold text-slate-800">Current Mainboard IPOs</h3>
-                        <button onclick="navigateTo('live')" class="text-indigo-600 font-bold text-xs uppercase tracking-wider hover:underline">View More</button>
+            document.getElementById('content-area').innerHTML = `
+                <!-- Stats Overview -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                    <div class="glass-card p-6 text-center">
+                        <div class="text-4xl font-black text-amber-400 mb-2">${liveIPOs.length}</div>
+                        <div class="text-sm text-gray-400 font-semibold">Live IPOs</div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">${main3.map(renderCard).join('')}</div>
-                </section>
-
-                <section>
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xl font-extrabold text-slate-800">Active SME IPOs</h3>
-                        <button onclick="navigateTo('live')" class="text-indigo-600 font-bold text-xs uppercase tracking-wider hover:underline">View More</button>
+                    <div class="glass-card p-6 text-center">
+                        <div class="text-4xl font-black text-blue-400 mb-2">${upcomingIPOs.length}</div>
+                        <div class="text-sm text-gray-400 font-semibold">Upcoming IPOs</div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">${sme6.map(renderCard).join('')}</div>
-                </section>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                        <h3 class="text-lg font-bold mb-4 flex items-center gap-2">📊 Live Subscription</h3>
-                        <div class="space-y-3">
-                            ${ipoStore.all.slice(0, 5).map(ipo => `
-                                <div class="flex justify-between text-sm py-2 border-b border-slate-50">
-                                    <span class="text-slate-600 font-medium">${ipo.name}</span>
-                                    <span class="font-bold text-green-600">${ipo.subs_total || '1.0x'}</span>
-                                </div>`).join('')}
-                        </div>
-                        <button onclick="navigateTo('subs')" class="w-full mt-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest py-2">Full Subscription Table</button>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                        <h3 class="text-lg font-bold mb-4 flex items-center gap-2">🔥 IPO GMP Today</h3>
-                        <div class="space-y-3">
-                            ${ipoStore.all.slice(0, 5).map(ipo => `
-                                <div class="flex justify-between text-sm py-2 border-b border-slate-50">
-                                    <span class="text-slate-600 font-medium">${ipo.name}</span>
-                                    <span class="font-black text-indigo-600">${ipo.gmp || 'Calculating...'}</span>
-                                </div>`).join('')}
-                        </div>
-                        <button onclick="navigateTo('gmp')" class="w-full mt-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest py-2">Check Detailed GMP</button>
+                    <div class="glass-card p-6 text-center">
+                        <div class="text-4xl font-black text-green-400 mb-2">₹${calculateTotalIssueSize()}</div>
+                        <div class="text-sm text-gray-400 font-semibold">Total Issue Size (Cr)</div>
                     </div>
                 </div>
 
-                <section class="bg-slate-900 p-8 rounded-[32px] text-white">
+                <!-- Mainboard IPOs -->
+                ${mainboardLive.length > 0 ? `
+                <section class="mb-12">
                     <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xl font-bold">Recent Allotments</h3>
-                        <button onclick="navigateTo('allot')" class="bg-white/10 px-4 py-2 rounded-full text-[10px] font-bold uppercase">Check All</button>
+                        <h3 class="text-2xl font-bold">Live Mainboard IPOs</h3>
+                        <button onclick="showSection('live')" class="text-amber-400 text-sm font-semibold hover:text-amber-300 transition">
+                            View All →
+                        </button>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        ${ipoStore.all.slice(0, 2).map(ipo => `
-                            <div class="bg-white/5 border border-white/10 p-5 rounded-2xl flex justify-between items-center">
-                                <div>
-                                    <p class="text-[9px] text-indigo-400 font-bold mb-1 uppercase">${ipo.type}</p>
-                                    <h4 class="font-bold text-sm">${ipo.name}</h4>
-                                </div>
-                                <button class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-[10px] font-bold hover:bg-indigo-500">Allotment</button>
-                            </div>`).join('')}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        ${mainboardLive.map(ipo => renderIPOCard(ipo)).join('')}
                     </div>
                 </section>
+                ` : ''}
+
+                <!-- SME IPOs -->
+                ${smeLive.length > 0 ? `
+                <section class="mb-12">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold">Live SME IPOs</h3>
+                        <button onclick="showSection('live')" class="text-amber-400 text-sm font-semibold hover:text-amber-300 transition">
+                            View All →
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        ${smeLive.map(ipo => renderIPOCard(ipo)).join('')}
+                    </div>
+                </section>
+                ` : ''}
+
+                <!-- No IPOs Message -->
+                ${liveIPOs.length === 0 ? `
+                <div class="glass-card p-12 text-center">
+                    <div class="text-6xl mb-4">📊</div>
+                    <h3 class="text-2xl font-bold mb-2">No Live IPOs</h3>
+                    <p class="text-gray-400">Check back soon for upcoming opportunities!</p>
+                </div>
+                ` : ''}
             `;
         }
 
-        // Card Template
-        const renderCard = (ipo) => `
-            <div class="glass-card">
-                <div class="flex justify-between items-start mb-4">
-                    <h4 class="font-bold text-slate-800 text-sm leading-snug">${ipo.name}</h4>
-                    <span class="bg-indigo-50 text-indigo-600 text-[9px] px-2 py-1 rounded font-black uppercase">${ipo.type}</span>
-                </div>
-                <div class="flex justify-between items-center mt-auto pt-4 border-t border-slate-50">
-                    <div class="text-[10px] text-slate-400 font-semibold italic">${ipo.dates}</div>
-                    <button class="bg-slate-900 text-white px-4 py-2 rounded-lg text-[10px] font-bold">Details</button>
-                </div>
-            </div>`;
+        // ============================================
+        // IPO Card Component
+        // ============================================
+        function renderIPOCard(ipo) {
+            const score = ipo.ipo_scores?.[0];
+            const hasScore = score && score.total_score;
+            
+            return `
+                <div class="glass-card p-6 cursor-pointer" onclick="showIPODetails(${ipo.id})">
+                    <!-- Header -->
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex-1">
+                            <h4 class="font-bold text-lg mb-2 leading-tight">${ipo.name}</h4>
+                            <span class="${ipo.type === 'Mainboard' ? 'badge-mainboard' : 'badge-sme'}">
+                                ${ipo.type}
+                            </span>
+                        </div>
+                        ${renderScoreBadge(score, hasScore)}
+                    </div>
 
-        window.onload = () => navigateTo('dashboard');
+                    <!-- Key Info -->
+                    <div class="space-y-2 mb-4 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Price Band</span>
+                            <span class="font-semibold text-white">
+                                ${ipo.price_band_min && ipo.price_band_max ? `₹${ipo.price_band_min} - ₹${ipo.price_band_max}` : 'TBA'}
+                            </span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">GMP</span>
+                            <span class="font-bold ${ipo.gmp > 0 ? 'text-green-400' : 'text-gray-400'}">
+                                ${ipo.gmp > 0 ? `+₹${ipo.gmp} (${ipo.gmp_percentage}%)` : 'Pending'}
+                            </span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Subscription</span>
+                            <span class="font-semibold text-blue-400">
+                                ${ipo.subs_total > 0 ? `${ipo.subs_total}x` : 'TBA'}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Dates -->
+                    <div class="pt-4 border-t border-white/10 text-xs text-gray-400">
+                        ${ipo.open_date && ipo.close_date ? `
+                            📅 ${formatDate(ipo.open_date)} - ${formatDate(ipo.close_date)}
+                        ` : 'Dates TBA'}
+                    </div>
+
+                    <!-- View Button -->
+                    <button class="btn-primary w-full mt-4 py-2 rounded-xl text-sm font-bold">
+                        View Details
+                    </button>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // Score Badge
+        // ============================================
+        function renderScoreBadge(score, hasScore) {
+            if (!hasScore) {
+                return `
+                    <div class="text-center" onclick="event.stopPropagation(); showEmailSignup();">
+                        <div class="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-1 cursor-pointer hover:bg-white/20 transition">
+                            <span class="text-2xl">🔒</span>
+                        </div>
+                        <div class="text-xs text-gray-400">Score</div>
+                    </div>
+                `;
+            }
+            
+            const scoreClass = 
+                score.total_score >= 8.5 ? 'score-strong-buy' :
+                score.total_score >= 7.0 ? 'score-buy' :
+                score.total_score >= 5.0 ? 'score-neutral' : 'score-avoid';
+            
+            return `
+                <div class="text-center">
+                    <div class="w-16 h-16 rounded-full ${scoreClass} flex items-center justify-center mb-1 font-black text-xl">
+                        ${score.total_score}
+                    </div>
+                    <div class="text-xs text-gray-400">Score</div>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // Show IPO Details Modal
+        // ============================================
+        async function showIPODetails(ipoId) {
+            const ipo = allIPOs.find(i => i.id === ipoId);
+            if (!ipo) return;
+            
+            const score = ipo.ipo_scores?.[0];
+            
+            document.getElementById('modal-content').innerHTML = `
+                <!-- Close Button -->
+                <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl">
+                    ×
+                </button>
+
+                <!-- Header -->
+                <div class="mb-6">
+                    <h2 class="text-3xl font-black mb-3">${ipo.name}</h2>
+                    <div class="flex gap-2">
+                        <span class="${ipo.type === 'Mainboard' ? 'badge-mainboard' : 'badge-sme'}">
+                            ${ipo.type}
+                        </span>
+                        <span class="status-${ipo.status.toLowerCase()} px-3 py-1 rounded-full text-xs font-bold">
+                            ${ipo.status}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Quick Stats Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="glass-card p-4">
+                        <div class="text-2xl font-bold text-amber-400">₹${ipo.issue_size_cr || 'TBA'}</div>
+                        <div class="text-xs text-gray-400 mt-1">Issue Size (Cr)</div>
+                    </div>
+                    <div class="glass-card p-4">
+                        <div class="text-2xl font-bold text-blue-400">${ipo.lot_size || 'TBA'}</div>
+                        <div class="text-xs text-gray-400 mt-1">Lot Size</div>
+                    </div>
+                    <div class="glass-card p-4">
+                        <div class="text-2xl font-bold text-green-400">${ipo.gmp > 0 ? `+₹${ipo.gmp}` : 'TBA'}</div>
+                        <div class="text-xs text-gray-400 mt-1">GMP</div>
+                    </div>
+                    <div class="glass-card p-4">
+                        <div class="text-2xl font-bold text-purple-400">${ipo.subs_total > 0 ? `${ipo.subs_total}x` : 'TBA'}</div>
+                        <div class="text-xs text-gray-400 mt-1">Subscription</div>
+                    </div>
+                </div>
+
+                <!-- IPO Money Score Section -->
+                ${score && score.total_score ? `
+                <div class="glass-card p-6 mb-6">
+                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                        <span>⭐</span> IPO Money Score
+                    </h3>
+                    <div class="flex items-center gap-6">
+                        <div class="text-6xl font-black ${
+                            score.total_score >= 8.5 ? 'text-green-400' :
+                            score.total_score >= 7.0 ? 'text-blue-400' :
+                            score.total_score >= 5.0 ? 'text-amber-400' : 'text-red-400'
+                        }">
+                            ${score.total_score}/10
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold mb-2">${score.verdict}</div>
+                            <div class="text-sm text-gray-400">Based on 20+ parameters</div>
+                        </div>
+                    </div>
+                </div>
+                ` : `
+                <div class="glass-card p-6 mb-6 text-center">
+                    <div class="text-4xl mb-3">🔒</div>
+                    <h3 class="text-xl font-bold mb-2">IPO Money Score</h3>
+                    <p class="text-gray-400 mb-4">Get expert analysis score for this IPO</p>
+                    <button onclick="showEmailSignup()" class="btn-gold px-6 py-2 rounded-full text-sm font-bold">
+                        Unlock Score
+                    </button>
+                </div>
+                `}
+
+                <!-- Details -->
+                <div class="space-y-4">
+                    <div class="glass-card p-4">
+                        <div class="text-sm text-gray-400 mb-1">Price Band</div>
+                        <div class="font-bold">${ipo.price_band_min && ipo.price_band_max ? `₹${ipo.price_band_min} - ₹${ipo.price_band_max}` : 'To be announced'}</div>
+                    </div>
+                    
+                    <div class="glass-card p-4">
+                        <div class="text-sm text-gray-400 mb-1">Dates</div>
+                        <div class="font-bold">
+                            ${ipo.open_date && ipo.close_date ? 
+                                `${formatDate(ipo.open_date)} to ${formatDate(ipo.close_date)}` : 
+                                'To be announced'}
+                        </div>
+                    </div>
+                    
+                    ${ipo.lead_manager ? `
+                    <div class="glass-card p-4">
+                        <div class="text-sm text-gray-400 mb-1">Lead Manager</div>
+                        <div class="font-bold">${ipo.lead_manager}</div>
+                    </div>
+                    ` : ''}
+                    
+                    ${ipo.registrar ? `
+                    <div class="glass-card p-4">
+                        <div class="text-sm text-gray-400 mb-1">Registrar</div>
+                        <div class="font-bold">${ipo.registrar}</div>
+                        ${ipo.registrar_url ? `
+                            <a href="${ipo.registrar_url}" target="_blank" class="text-blue-400 text-sm hover:text-blue-300 transition">
+                                Check Allotment Status →
+                            </a>
+                        ` : ''}
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            document.getElementById('ipo-modal').classList.remove('hidden');
+        }
+
+        // ============================================
+        // Email Signup
+        // ============================================
+        function showEmailSignup() {
+            document.getElementById('email-modal').classList.remove('hidden');
+        }
+
+        function closeEmailModal() {
+            document.getElementById('email-modal').classList.add('hidden');
+        }
+
+        async function submitEmail() {
+            const email = document.getElementById('email-input').value.trim();
+            
+            if (!email || !email.includes('@')) {
+                alert('Please enter a valid email address');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .insert([{ email: email }])
+                    .select();
+                
+                if (error && error.code !== '23505') throw error;
+                
+                userEmail = email;
+                alert('🎉 Success! You now have access to IPO Money Scores. Refresh the page to see them.');
+                closeEmailModal();
+                loadDashboard();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Something went wrong. Please try again.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // ============================================
+        // Helper Functions
+        // ============================================
+        function closeModal() {
+            document.getElementById('ipo-modal').classList.add('hidden');
+        }
+
+        function showLoading() {
+            document.getElementById('loading').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.add('hidden');
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return 'TBA';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        function calculateTotalIssueSize() {
+            const total = allIPOs
+                .filter(i => i.status === 'Live' || i.status === 'Upcoming')
+                .reduce((sum, ipo) => sum + (ipo.issue_size_cr || 0), 0);
+            return total.toFixed(0);
+        }
+
+        function showSection(section) {
+            // Filter and display based on section
+            // For MVP, we'll just show all IPOs filtered by status
+            console.log('Showing section:', section);
+            // TODO: Implement section filtering
+        }
+
+        function toggleMobileMenu() {
+            // TODO: Implement mobile menu
+            console.log('Mobile menu toggled');
+        }
     </script>
+
 </body>
 </html>
