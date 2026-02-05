@@ -1,28 +1,43 @@
-name: IPO Data Auto Update
+name: IPO Money - Auto Data Sync
 
+# When to run this workflow
 on:
-  workflow_dispatch: # Manual button ke liye
+  # Run every 30 minutes
   schedule:
-    - cron: '*/15 * * * *' # Ab ye har 15 minute mein chalega
+    - cron: '*/30 * * * *'
+  
+  # Allow manual trigger (useful for testing)
+  workflow_dispatch:
 
 jobs:
-  build:
+  scrape-and-sync:
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout code
+      # Step 1: Get the code from repository
+      - name: Checkout Repository
         uses: actions/checkout@v3
-
-      - name: Set up Python
+      
+      # Step 2: Setup Python environment
+      - name: Setup Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
-
-      - name: Install dependencies
+          python-version: '3.11'
+      
+      # Step 3: Install required packages
+      - name: Install Dependencies
         run: |
-          pip install requests beautifulsoup4 supabase
-
-      - name: Run Scraper
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      # Step 4: Run the scraper
+      - name: Run IPO Scraper
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-        run: python scraper.py
+        run: |
+          python scraper.py
+      
+      # Step 5: Show completion
+      - name: Complete
+        run: echo "✅ IPO data sync completed successfully"
