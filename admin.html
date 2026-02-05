@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPO Money - Admin Panel</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+        }
+        
+        input, select, textarea {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            width: 100%;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #fbbf24;
+        }
+        
+        .btn-save {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-delete {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="max-w-7xl mx-auto p-6">
+        
+        <!-- Header -->
+        <div class="glass-card p-6 mb-6">
+            <h1 class="text-3xl font-black bg-gradient-to-r from-blue-400 to-amber-400 bg-clip-text text-transparent">
+                IPO Money - Admin Panel
+            </h1>
+            <p class="text-gray-400 mt-2">Update GMP and manage IPO data</p>
+        </div>
+
+        <!-- Password Protection -->
+        <div id="password-screen" class="glass-card p-8 max-w-md mx-auto">
+            <h2 class="text-2xl font-bold mb-4">Admin Access</h2>
+            <input 
+                type="password" 
+                id="admin-password" 
+                placeholder="Enter password"
+                onkeypress="if(event.key === 'Enter') checkPassword()"
+                class="mb-4"
+            >
+            <button onclick="checkPassword()" class="btn-save w-full">
+                Login
+            </button>
+            <p class="text-xs text-gray-500 mt-4">Default password: admin123 (change in code)</p>
+        </div>
+
+        <!-- Admin Panel (Hidden until logged in) -->
+        <div id="admin-panel" class="hidden">
+            
+            <!-- Quick Actions -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                
+                <!-- Add New IPO -->
+                <div class="glass-card p-6">
+                    <h2 class="text-xl font-bold mb-4">➕ Add New IPO</h2>
+                    <button onclick="showAddIPOForm()" class="btn-save w-full">
+                        Create New IPO
+                    </button>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="glass-card p-6">
+                    <h2 class="text-xl font-bold mb-4">📊 Quick Stats</h2>
+                    <div id="stats-container" class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Total IPOs:</span>
+                            <span id="stat-total" class="font-bold">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Live:</span>
+                            <span id="stat-live" class="font-bold text-green-400">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Upcoming:</span>
+                            <span id="stat-upcoming" class="font-bold text-blue-400">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IPO List -->
+            <div class="glass-card p-6">
+                <h2 class="text-2xl font-bold mb-6">All IPOs</h2>
+                <div id="ipo-list" class="space-y-4">
+                    <!-- IPOs will load here -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Add/Edit IPO Modal -->
+        <div id="ipo-form-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+            <div class="glass-card max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8">
+                <h2 id="form-title" class="text-2xl font-bold mb-6">Add New IPO</h2>
+                
+                <form onsubmit="saveIPO(event)" class="space-y-4">
+                    
+                    <input type="hidden" id="ipo-id">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-sm text-gray-400 block mb-2">IPO Name *</label>
+                            <input type="text" id="ipo-name" required placeholder="e.g., Hyundai Motor India">
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm text-gray-400 block mb-2">Type *</label>
+                            <select id="ipo-type" required>
+                                <option value="Mainboard">Mainboard</option>
+                                <option value="SME">SME</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-sm text-gray-400 block mb-2">Status *</label>
+                            <select id="ipo-status" required>
+                                <option value="Upcoming">Upcoming</option>
+                                <option value="Live">Live</option>
+                                <option value="Closed">Closed</option>
+                                <option value="Listed">Listed</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm text-gray-400 block mb-2">Issue Size (Cr)</label>
+                            <input type="number" id="ipo-issue-size" placeholder="500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-sm text-gray-400 block mb-2">Price Band Min (₹)</label>
+                            <input type="number" id="ipo-price-min" placeholder="100">
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm text-gray-400 block mb-2">Price Band Max (₹)</label>
+                            <input type="number" id="ipo-price-max" placeholder="110">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-gray-400 block mb-2">Lot Size</label>
+                        <input type="number" id="ipo-lot-size" placeholder="135">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-sm text-gray-400 block mb-2">Open Date</label>
+                            <input type="date" id="ipo-open-date">
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm text-gray-400 block mb-2">Close Date</label>
+                            <input type="date" id="ipo-close-date">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-sm text-gray-400 block mb-2">Allotment Date</label>
+                            <input type="date" id="ipo-allotment-date">
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm text-gray-400 block mb-2">Listing Date</label>
+                            <input type="date" id="ipo-listing-date">
+                        </div>
+                    </div>
+
+                    <!-- GMP Section -->
+                    <div class="border-t border-white/10 pt-4">
+                        <h3 class="font-bold mb-3">GMP Data</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm text-gray-400 block mb-2">GMP (₹)</label>
+                                <input type="number" id="ipo-gmp" placeholder="150" onchange="calculateGMPPercentage()">
+                            </div>
+                            
+                            <div>
+                                <label class="text-sm text-gray-400 block mb-2">GMP %</label>
+                                <input type="number" step="0.01" id="ipo-gmp-percent" placeholder="Auto-calculated">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Subscription Section -->
+                    <div class="border-t border-white/10 pt-4">
+                        <h3 class="font-bold mb-3">Subscription Data</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div>
+                                <label class="text-sm text-gray-400 block mb-2">Total</label>
+                                <input type="number" step="0.01" id="ipo-subs-total" placeholder="12.5">
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-400 block mb-2">Retail</label>
+                                <input type="number" step="0.01" id="ipo-subs-retail" placeholder="8.2">
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-400 block mb-2">QIB</label>
+                                <input type="number" step="0.01" id="ipo-subs-qib" placeholder="15.3">
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-400 block mb-2">NII</label>
+                                <input type="number" step="0.01" id="ipo-subs-nii" placeholder="5.1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Info -->
+                    <div class="border-t border-white/10 pt-4">
+                        <h3 class="font-bold mb-3">Additional Info</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm text-gray-400 block mb-2">Lead Manager</label>
+                                <input type="text" id="ipo-lead-manager" placeholder="ICICI Securities">
+                            </div>
+                            
+                            <div>
+                                <label class="text-sm text-gray-400 block mb-2">Registrar</label>
+                                <input type="text" id="ipo-registrar" placeholder="KFintech">
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <label class="text-sm text-gray-400 block mb-2">Registrar URL</label>
+                            <input type="url" id="ipo-registrar-url" placeholder="https://...">
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex gap-4 pt-4">
+                        <button type="submit" class="btn-save flex-1">
+                            Save IPO
+                        </button>
+                        <button type="button" onclick="closeIPOForm()" class="btn-delete">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // Configuration
+        const SUPABASE_URL = 'https://blwjuzmvrvtfklthvfoz.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJsd2p1em12cnZ0ZmtsdGh2Zm96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg2NjE0NDMsImV4cCI6MjA1NDIzNzQ0M30.eJVOHdhBG6Rbbivp8vogLQ_8ADKpsOY_rGHl9LR6hME';
+        const ADMIN_PASSWORD = 'admin123'; // CHANGE THIS!
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        let allIPOs = [];
+
+        // Password Check
+        function checkPassword() {
+            const password = document.getElementById('admin-password').value;
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('password-screen').classList.add('hidden');
+                document.getElementById('admin-panel').classList.remove('hidden');
+                loadAllIPOs();
+            } else {
+                alert('Incorrect password!');
+            }
+        }
+
+        // Load All IPOs
+        async function loadAllIPOs() {
+            try {
+                const { data, error } = await supabase
+                    .from('ipos')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                allIPOs = data || [];
+                renderIPOList();
+                updateStats();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to load IPOs: ' + error.message);
+            }
+        }
+
+        // Render IPO List
+        function renderIPOList() {
+            const container = document.getElementById('ipo-list');
+            
+            if (allIPOs.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 text-center py-8">No IPOs found. Add your first IPO!</p>';
+                return;
+            }
+            
+            container.innerHTML = allIPOs.map(ipo => `
+                <div class="bg-white/5 p-4 rounded-lg border border-white/10">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h3 class="font-bold text-lg mb-1">${ipo.name}</h3>
+                            <div class="flex gap-2 mb-2">
+                                <span class="text-xs px-2 py-1 rounded ${ipo.type === 'Mainboard' ? 'bg-blue-500/20 text-blue-400' : 'bg-purple-500/20 text-purple-400'}">
+                                    ${ipo.type}
+                                </span>
+                                <span class="text-xs px-2 py-1 rounded bg-white/10">
+                                    ${ipo.status}
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                                <div>
+                                    <span class="text-gray-400">GMP:</span>
+                                    <span class="font-semibold ${ipo.gmp > 0 ? 'text-green-400' : 'text-gray-400'}">
+                                        ${ipo.gmp > 0 ? `₹${ipo.gmp}` : '-'}
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400">Subs:</span>
+                                    <span class="font-semibold text-blue-400">
+                                        ${ipo.subs_total > 0 ? `${ipo.subs_total}x` : '-'}
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400">Open:</span>
+                                    <span class="font-semibold">
+                                        ${ipo.open_date ? new Date(ipo.open_date).toLocaleDateString('en-IN', {day: 'numeric', month: 'short'}) : '-'}
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400">Close:</span>
+                                    <span class="font-semibold">
+                                        ${ipo.close_date ? new Date(ipo.close_date).toLocaleDateString('en-IN', {day: 'numeric', month: 'short'}) : '-'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 ml-4">
+                            <button onclick="editIPO(${ipo.id})" class="bg-blue-500/20 text-blue-400 px-3 py-1 rounded text-sm font-semibold hover:bg-blue-500/30">
+                                Edit
+                            </button>
+                            <button onclick="deleteIPO(${ipo.id}, '${ipo.name}')" class="btn-delete">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update Stats
+        function updateStats() {
+            document.getElementById('stat-total').textContent = allIPOs.length;
+            document.getElementById('stat-live').textContent = allIPOs.filter(i => i.status === 'Live').length;
+            document.getElementById('stat-upcoming').textContent = allIPOs.filter(i => i.status === 'Upcoming').length;
+        }
+
+        // Show Add IPO Form
+        function showAddIPOForm() {
+            document.getElementById('form-title').textContent = 'Add New IPO';
+            document.getElementById('ipo-form-modal').classList.remove('hidden');
+            document.querySelector('form').reset();
+            document.getElementById('ipo-id').value = '';
+        }
+
+        // Edit IPO
+        function editIPO(ipoId) {
+            const ipo = allIPOs.find(i => i.id === ipoId);
+            if (!ipo) return;
+            
+            document.getElementById('form-title').textContent = 'Edit IPO';
+            document.getElementById('ipo-id').value = ipo.id;
+            document.getElementById('ipo-name').value = ipo.name || '';
+            document.getElementById('ipo-type').value = ipo.type || 'Mainboard';
+            document.getElementById('ipo-status').value = ipo.status || 'Upcoming';
+            document.getElementById('ipo-issue-size').value = ipo.issue_size_cr || '';
+            document.getElementById('ipo-price-min').value = ipo.price_band_min || '';
+            document.getElementById('ipo-price-max').value = ipo.price_band_max || '';
+            document.getElementById('ipo-lot-size').value = ipo.lot_size || '';
+            document.getElementById('ipo-open-date').value = ipo.open_date || '';
+            document.getElementById('ipo-close-date').value = ipo.close_date || '';
+            document.getElementById('ipo-allotment-date').value = ipo.allotment_date || '';
+            document.getElementById('ipo-listing-date').value = ipo.listing_date || '';
+            document.getElementById('ipo-gmp').value = ipo.gmp || '';
+            document.getElementById('ipo-gmp-percent').value = ipo.gmp_percentage || '';
+            document.getElementById('ipo-subs-total').value = ipo.subs_total || '';
+            document.getElementById('ipo-subs-retail').value = ipo.subs_retail || '';
+            document.getElementById('ipo-subs-qib').value = ipo.subs_qib || '';
+            document.getElementById('ipo-subs-nii').value = ipo.subs_nii || '';
+            document.getElementById('ipo-lead-manager').value = ipo.lead_manager || '';
+            document.getElementById('ipo-registrar').value = ipo.registrar || '';
+            document.getElementById('ipo-registrar-url').value = ipo.registrar_url || '';
+            
+            document.getElementById('ipo-form-modal').classList.remove('hidden');
+        }
+
+        // Calculate GMP Percentage
+        function calculateGMPPercentage() {
+            const gmp = parseFloat(document.getElementById('ipo-gmp').value) || 0;
+            const priceMax = parseFloat(document.getElementById('ipo-price-max').value) || 0;
+            
+            if (priceMax > 0) {
+                const percentage = ((gmp / priceMax) * 100).toFixed(2);
+                document.getElementById('ipo-gmp-percent').value = percentage;
+            }
+        }
+
+        // Save IPO
+        async function saveIPO(event) {
+            event.preventDefault();
+            
+            const ipoId = document.getElementById('ipo-id').value;
+            const ipoData = {
+                name: document.getElementById('ipo-name').value,
+                type: document.getElementById('ipo-type').value,
+                status: document.getElementById('ipo-status').value,
+                issue_size_cr: parseFloat(document.getElementById('ipo-issue-size').value) || null,
+                price_band_min: parseFloat(document.getElementById('ipo-price-min').value) || null,
+                price_band_max: parseFloat(document.getElementById('ipo-price-max').value) || null,
+                lot_size: parseInt(document.getElementById('ipo-lot-size').value) || null,
+                open_date: document.getElementById('ipo-open-date').value || null,
+                close_date: document.getElementById('ipo-close-date').value || null,
+                allotment_date: document.getElementById('ipo-allotment-date').value || null,
+                listing_date: document.getElementById('ipo-listing-date').value || null,
+                gmp: parseInt(document.getElementById('ipo-gmp').value) || 0,
+                gmp_percentage: parseFloat(document.getElementById('ipo-gmp-percent').value) || 0,
+                gmp_updated_at: new Date().toISOString(),
+                subs_total: parseFloat(document.getElementById('ipo-subs-total').value) || 0,
+                subs_retail: parseFloat(document.getElementById('ipo-subs-retail').value) || 0,
+                subs_qib: parseFloat(document.getElementById('ipo-subs-qib').value) || 0,
+                subs_nii: parseFloat(document.getElementById('ipo-subs-nii').value) || 0,
+                lead_manager: document.getElementById('ipo-lead-manager').value || null,
+                registrar: document.getElementById('ipo-registrar').value || null,
+                registrar_url: document.getElementById('ipo-registrar-url').value || null,
+            };
+            
+            try {
+                if (ipoId) {
+                    // Update existing
+                    const { error } = await supabase
+                        .from('ipos')
+                        .update(ipoData)
+                        .eq('id', ipoId);
+                    
+                    if (error) throw error;
+                    alert('✅ IPO updated successfully!');
+                } else {
+                    // Insert new
+                    const { error } = await supabase
+                        .from('ipos')
+                        .insert([ipoData]);
+                    
+                    if (error) throw error;
+                    alert('✅ IPO added successfully!');
+                }
+                
+                closeIPOForm();
+                loadAllIPOs();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Failed to save: ' + error.message);
+            }
+        }
+
+        // Delete IPO
+        async function deleteIPO(ipoId, ipoName) {
+            if (!confirm(`Are you sure you want to delete "${ipoName}"?`)) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('ipos')
+                    .delete()
+                    .eq('id', ipoId);
+                
+                if (error) throw error;
+                
+                alert('✅ IPO deleted successfully!');
+                loadAllIPOs();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Failed to delete: ' + error.message);
+            }
+        }
+
+        // Close Form
+        function closeIPOForm() {
+            document.getElementById('ipo-form-modal').classList.add('hidden');
+        }
+    </script>
+
+</body>
+</html>
