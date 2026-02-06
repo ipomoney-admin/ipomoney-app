@@ -17,11 +17,8 @@ import sys
 from datetime import datetime
 from supabase import create_client
 
-# Import our scrapers
-from scraper_chittorgarh import scrape_chittorgarh
-from scraper_investorgain import scrape_investorgain_gmp
-from scraper_moneycontrol import scrape_moneycontrol
-from scraper_ipopremium import scrape_ipopremium
+# Import our scraper
+from scraper_ipoji import scrape_ipoji_current_ipos
 
 # ============================================
 # Configuration
@@ -204,48 +201,18 @@ def main():
     print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("="*60)
     
-    # Step 1: Run all scrapers
+    # Step 1: Run IPOJI scraper
     sources_data = {}
     
-    # Chittorgarh
+    # IPOJI - Single source (most reliable)
     try:
-        chittorgarh_data = scrape_chittorgarh()
-        sources_data['chittorgarh'] = chittorgarh_data
-        log_scraper("chittorgarh", "success", f"Scraped {len(chittorgarh_data)} IPOs", len(chittorgarh_data))
+        ipoji_data = scrape_ipoji_current_ipos()
+        sources_data['ipoji'] = ipoji_data
+        log_scraper("ipoji", "success", f"Scraped {len(ipoji_data)} IPOs", len(ipoji_data))
     except Exception as e:
-        print(f"[CHITTORGARH] Failed: {e}")
-        log_scraper("chittorgarh", "error", str(e), 0)
-        sources_data['chittorgarh'] = []
-    
-    # Investorgain (GMP)
-    try:
-        investorgain_data = scrape_investorgain_gmp()
-        sources_data['investorgain'] = investorgain_data
-        log_scraper("investorgain", "success", f"Scraped {len(investorgain_data)} GMP entries", len(investorgain_data))
-    except Exception as e:
-        print(f"[INVESTORGAIN] Failed: {e}")
-        log_scraper("investorgain", "error", str(e), 0)
-        sources_data['investorgain'] = []
-    
-    # MoneyControl
-    try:
-        moneycontrol_data = scrape_moneycontrol()
-        sources_data['moneycontrol'] = moneycontrol_data
-        log_scraper("moneycontrol", "success", f"Scraped {len(moneycontrol_data)} IPOs", len(moneycontrol_data))
-    except Exception as e:
-        print(f"[MONEYCONTROL] Failed: {e}")
-        log_scraper("moneycontrol", "error", str(e), 0)
-        sources_data['moneycontrol'] = []
-    
-    # IPO Premium
-    try:
-        ipopremium_data = scrape_ipopremium()
-        sources_data['ipopremium'] = ipopremium_data
-        log_scraper("ipopremium", "success", f"Scraped {len(ipopremium_data)} IPOs", len(ipopremium_data))
-    except Exception as e:
-        print(f"[IPOPREMIUM] Failed: {e}")
-        log_scraper("ipopremium", "error", str(e), 0)
-        sources_data['ipopremium'] = []
+        print(f"[IPOJI] Failed: {e}")
+        log_scraper("ipoji", "error", str(e), 0)
+        sources_data['ipoji'] = []
     
     # Step 2: Merge data
     print("\n[MERGE] Combining data from all sources...")
