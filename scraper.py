@@ -4,8 +4,10 @@ from bs4 import BeautifulSoup
 from supabase import create_client
 
 # GitHub Secrets se uthane ka try karega
-URL = os.environ.get("SUPABASE_URL", "").strip()
-KEY = os.environ.get("SUPABASE_KEY", "").strip()
+URL = "https://khnuyrhafzppbugebjdn.supabase.co"
+KEY = "sb_secret_SIb_8imA5DxLxNVK1srMDQ__xLolWEV"
+
+supabase = create_client(URL, KEY)
 
 # Agar variables nahi mil rahe toh yahan se error pakda jayega
 if not URL or not KEY:
