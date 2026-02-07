@@ -1,21 +1,24 @@
-name: IPO Data Auto Update
+name: Update IPO Data
 on:
-  workflow_dispatch: # Manual button ke liye
+  workflow_dispatch:
   schedule:
-    - cron: '*/15 * * * *' # Ab ye har 15 minute mein chalega
+    - cron: '0 */2 * * *'
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v3
-      - name: Set up Python
+
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-      - name: Install dependencies
-        run: |
-          pip install requests beautifulsoup4 supabase
+
+      - name: Install Dependencies
+        run: pip install requests beautifulsoup4 supabase
+
       - name: Run Scraper
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
