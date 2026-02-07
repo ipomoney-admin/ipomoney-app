@@ -2,10 +2,8 @@ name: IPO AI Research Auto-Sync
 
 on:
   schedule:
-    # Har roz raat 12:00 baje (IST 5:30 AM approx) apne aap chalega
     - cron: '0 0 * * *'
   workflow_dispatch:
-    # Isse aap GitHub Actions tab mein jaakar 'Run Workflow' button daba sakte hain
 
 jobs:
   update-ipo-data:
@@ -18,16 +16,10 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.10' # Latest Python version use karenge
 
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install google-generativeai pymupdf supabase requests
-
-      - name: Run AI Researcher Script
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-        run: python sebi_researcher.py
+          pip install google-genai pymupdf supabase requests 
+          # Nayi library 'google-genai' use karenge purani ki jagah
