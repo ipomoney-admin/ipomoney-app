@@ -4,7 +4,7 @@ import re
 from supabase import create_client
 
 # --- SETTINGS ---
-URL = "https://ipowatch.in"
+URL = "https://ipowatch.in/"
 S_URL = "https://blwjuzmvrvtfklthvfoz.supabase.co"
 S_KEY = "sb_secret_D3eHTtrO8atdHTHIReXxXQ_gc9AnEil"
 
