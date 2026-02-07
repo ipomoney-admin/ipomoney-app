@@ -1,46 +1,38 @@
-import os
+import pandas as pd
 import requests
-from bs4 import BeautifulSoup
+from io import StringIO
 from supabase import create_client
+import os
 
-# GitHub Secrets se uthane ka try karega
+# Credentials
 URL = "https://khnuyrhafzppbugebjdn.supabase.co"
 KEY = "sb_secret_SIb_8imA5DxLxNVK1srMDQ__xLolWEV"
+# Google Sheet CSV Link (Niche bataya hai kaise milega)
+SHEET_CSV_URL = "APNI_SHEET_KA_CSV_URL_YAHAN_DALO"
 
 supabase = create_client(URL, KEY)
 
-# Agar variables nahi mil rahe toh yahan se error pakda jayega
-if not URL or not KEY:
-    print(f"DEBUG: URL length: {len(URL)}, KEY length: {len(KEY)}")
-    raise ValueError("Bhai, SUPABASE_URL ya KEY GitHub Secrets mein nahi mil rahi!")
-
-supabase = create_client(URL, KEY)
-
-def scrape():
-    url = "https://ipowala.in/"
-    headers = {'User-Agent': 'Mozilla/5.0'}
+def sync_from_sheet():
     try:
-        r = requests.get(url, headers=headers, timeout=15)
-        soup = BeautifulSoup(r.text, 'html.parser')
-        table = soup.find('table')
-        if not table: return
+        # Sheet se data read karna
+        response = requests.get(SHEET_CSV_URL)
+        df = pd.read_csv(StringIO(response.text))
         
-        rows = table.find_all('tr')[1:]
-        for row in rows:
-            cols = [c.get_text(strip=True) for c in row.find_all('td')]
-            if len(cols) >= 3 and "IPO" in cols[0].upper():
-                ipo_data = {
-                    "name": cols[0],
-                    "dates": cols[1],
-                    "type": "SME" if "SME" in cols[0].upper() else "Mainboard",
-                    "gmp": cols[2],
-                    "status": "Live",
-                    "subs_total": "1.0x"
-                }
-                supabase.table("ipos").upsert(ipo_data, on_conflict="name").execute()
-                print(f"✅ Synced: {cols[0]}")
+        # Har row ko Supabase mein daalna
+        for _, row in df.iterrows():
+            data = {
+                "name": str(row['name']),
+                "dates": str(row['dates']),
+                "type": str(row['type']),
+                "gmp": str(row['gmp']),
+                "subs_total": str(row['subs_total']),
+                "status": str(row['status'])
+            }
+            supabase.table("ipos").upsert(data, on_conflict="name").execute()
+            print(f"✅ Live on Ipomoney: {row['name']}")
+            
     except Exception as e:
-        print(f"❌ Scraper Error: {e}")
+        print(f"❌ Sync Error: {e}")
 
 if __name__ == "__main__":
-    scrape()
+    sync_from_sheet()
