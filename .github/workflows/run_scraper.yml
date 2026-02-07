@@ -1,8 +1,8 @@
-name: Update IPO Data
+name: Sync Google Sheets to Supabase
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */2 * * *'
+    - cron: '0 */1 * * *' # Har 1 ghante mein update hoga
 
 jobs:
   build:
@@ -17,9 +17,9 @@ jobs:
           python-version: '3.9'
 
       - name: Install Dependencies
-        run: pip install requests beautifulsoup4 supabase
+        run: pip install pandas requests supabase
 
-      - name: Run Scraper
+      - name: Run Sync
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
