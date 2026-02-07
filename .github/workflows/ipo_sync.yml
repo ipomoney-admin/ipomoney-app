@@ -1,0 +1,29 @@
+name: IPO Data Sync
+
+on:
+  schedule:
+    - cron: '*/15 * * * *' # Har 15 minute mein chalega
+  workflow_dispatch: # Manual button dabane par bhi chalega
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install requests beautifulsoup4 supabase
+
+      - name: Run Scraper
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python scraper_ipoji_v2.py
