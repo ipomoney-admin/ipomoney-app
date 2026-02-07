@@ -1,36 +1,44 @@
+import os
 import requests
 from bs4 import BeautifulSoup
 from supabase import create_client
-import os
-URL = os.environ.get("SUPABASE_URL")
-KEY = os.environ.get("SUPABASE_KEY")
-supabase = create_client(URL, KEY)
-def scrape_ipo_watch():
-    url = "https://ipowatch.in/" 
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
 
+# GitHub Secrets se uthane ka try karega
+URL = os.environ.get("SUPABASE_URL", "").strip()
+KEY = os.environ.get("SUPABASE_KEY", "").strip()
+
+# Agar variables nahi mil rahe toh yahan se error pakda jayega
+if not URL or not KEY:
+    print(f"DEBUG: URL length: {len(URL)}, KEY length: {len(KEY)}")
+    raise ValueError("Bhai, SUPABASE_URL ya KEY GitHub Secrets mein nahi mil rahi!")
+
+supabase = create_client(URL, KEY)
+
+def scrape():
+    url = "https://ipowatch.in/ipo-grey-market-premium-gmp-listing-fi-2/"
+    headers = {'User-Agent': 'Mozilla/5.0'}
     try:
-        response = requests.get(url, headers=headers, timeout=15)
-        soup = BeautifulSoup(response.text, 'html.parser')
+        r = requests.get(url, headers=headers, timeout=15)
+        soup = BeautifulSoup(r.text, 'html.parser')
         table = soup.find('table')
         if not table: return
-        rows = table.find_all('tr')[1:] 
+        
+        rows = table.find_all('tr')[1:]
         for row in rows:
             cols = [c.get_text(strip=True) for c in row.find_all('td')]
-            if len(cols) >= 5:
+            if len(cols) >= 3 and "IPO" in cols[0].upper():
                 ipo_data = {
-                    "name": cols[0],          # IPO / Stock
-                    "dates": cols[1],         # Date
-                    "type": cols[2],          # IPO Type
-                    "subscription": cols[3],  # IPO Size (Abhi isme size jayega)
-                    "price_band": cols[4],    # IPO Price Band
-                    "status": "Upcoming"      # Default status
+                    "name": cols[0],
+                    "dates": cols[1],
+                    "type": "SME" if "SME" in cols[0].upper() else "Mainboard",
+                    "gmp": cols[2],
+                    "status": "Live",
+                    "subs_total": "1.0x"
                 }
-                # Upsert command data push karega
                 supabase.table("ipos").upsert(ipo_data, on_conflict="name").execute()
-                print(f"Sync Complete: {cols[0]}")
-
+                print(f"✅ Synced: {cols[0]}")
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"❌ Scraper Error: {e}")
+
 if __name__ == "__main__":
-    scrape_ipo_watch()
+    scrape()
