@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPOWatch - Smart Admin</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f9; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        textarea { width: 100%; height: 150px; border-radius: 8px; border: 1px solid #ccc; padding: 10px; }
+        input { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #ddd; }
+        button { background: #007bff; color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #0056b3; }
+        .ai-btn { background: #28a745; margin-bottom: 20px; }
+        h2 { color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; color: #555; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🚀 IPO Smart Admin (Zero-Entry)</h2>
+    
+    <div class="grid">
+        <div>
+            <label>Paste DRHP/RHP Text (AI Research):</label>
+            <textarea id="rawText" placeholder="PDF ka text yahan paste karo (Ctrl+A, Ctrl+C from PDF)..."></textarea>
+            <button class="ai-btn" onclick="analyzeWithAI()">✨ AI se Form Bharo</button>
+            <p id="status" style="font-size: 12px; color: blue;"></p>
+        </div>
+
+        <div>
+            <label>IPO Name:</label>
+            <input type="text" id="ipoName" placeholder="Company Name">
+            
+            <label>GMP (Manual):</label>
+            <input type="text" id="gmp" placeholder="e.g. ₹50 (25%)">
+            
+            <label>RHP PDF Link:</label>
+            <input type="text" id="rhpUrl" placeholder="https://sebi.gov.in/...">
+            
+            <label>Anchor Book Link:</label>
+            <input type="text" id="anchorUrl" placeholder="Anchor allocation link">
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="grid">
+        <div>
+            <label>Company Details:</label>
+            <textarea id="compDetails"></textarea>
+        </div>
+        <div>
+            <label>Financials (JSON/Table Data):</label>
+            <textarea id="financials" placeholder='{"2023": {"rev": 100, "pat": 10}}'></textarea>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px;">
+        <button style="background: #ff4757; width: 200px;" onclick="saveToSupabase()">🚀 Live on ipowatch.in</button>
+    </div>
+</div>
+
+<script>
+    // 1. Supabase Config
+    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+    const SUPABASE_KEY = 'YOUR_SUPABASE_KEY';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // 2. AI Logic (Gemini API)
+    async function analyzeWithAI() {
+        const text = document.getElementById('rawText').value;
+        const status = document.getElementById('status');
+        
+        if(!text) return alert("Pehle text toh daalo bhai!");
+        
+        status.innerText = "AI dimag laga raha hai... please wait...";
+
+        // API Key aap yahan direct daal sakte hain (personal use ke liye admin panel hai)
+        const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY';
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+
+        const prompt = {
+            "contents": [{
+                "parts":[{
+                    "text": `Extract IPO name, company business summary (3 lines), and financial data (Revenue and PAT for last 3 years) from this text. 
+                    Return ONLY a JSON object like this: 
+                    {"name": "", "details": "", "financials": {"year1": {"rev":0, "pat":0}, "year2": {"rev":0, "pat":0}}} 
+                    Text: ${text.substring(0, 15000)}`
+                }]
+            }]
+        };
+
+        try {
+            const res = await fetch(url, { method: 'POST', body: JSON.stringify(prompt) });
+            const data = await res.json();
+            const resultText = data.candidates[0].content.parts[0].text;
+            
+            // Cleaning JSON
+            const cleanJson = JSON.parse(resultText.replace(/```json|```/g, ""));
+            
+            // Filling Form
+            document.getElementById('ipoName').value = cleanJson.name;
+            document.getElementById('compDetails').value = cleanJson.details;
+            document.getElementById('financials').value = JSON.stringify(cleanJson.financials, null, 2);
+            
+            status.innerText = "AI ne kaam kar diya! GMP bharo aur Save karo.";
+        } catch (e) {
+            console.error(e);
+            status.innerText = "Error: AI confuse ho gaya.";
+        }
+    }
+
+    // 3. Save to Supabase
+    async function saveToSupabase() {
+        const payload = {
+            name: document.getElementById('ipoName').value,
+            gmp: document.getElementById('gmp').value,
+            company_details: document.getElementById('compDetails').value,
+            financials: JSON.parse(document.getElementById('financials').value),
+            rhp_url: document.getElementById('rhpUrl').value,
+            anchor_url: document.getElementById('anchorUrl').value
+        };
+
+        const { data, error } = await supabase.from('ipos').upsert(payload);
+
+        if (error) alert("Error saving: " + error.message);
+        else alert("Mubarak ho! IPO live ho gaya.");
+    }
+</script>
+
+</body>
+</html>
