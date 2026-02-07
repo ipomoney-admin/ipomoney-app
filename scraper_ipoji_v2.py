@@ -1,57 +1,66 @@
 import requests
 from bs4 import BeautifulSoup
-import os
+import re
 from supabase import create_client
 
-# Supabase Setup (Aapke environment variables se lega)
-SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+# --- FIXED CREDENTIALS ---
+SUPABASE_URL = "https://blwjuzmvrvtfklthvfoz.supabase.co"
+SUPABASE_KEY = "sb_secret_D3eHTtrO8atdHTHIReXxXQ_gc9AnEil" # Teri di hui secret key
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+def extract_number(text):
+    if not text: return 0
+    nums = re.findall(r'\d+', text.replace(',', ''))
+    return float(nums[0]) if nums else 0
+
 def scrape_ipoji_live():
-    url = "https://www.ipoji.com/" # Main page jahan saare live IPOs hote hain
+    url = "https://www.ipoji.com/"
     headers = {'User-Agent': 'Mozilla/5.0'}
     
+    print("🔄 Fetching data from Ipoji...")
     response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.text, 'html.parser')
     
     ipo_list = []
-    
-    # Ipoji ke table rows ko target karna (Logic based on their structure)
-    table = soup.find('table') # Unka main data table
-    rows = table.find_all('tr')[1:] # First row header hoti hai
+    table = soup.find('table') 
+    if not table:
+        print("❌ Table nahi mili!")
+        return []
+
+    rows = table.find_all('tr')[1:] 
     
     for row in rows:
         cols = row.find_all('td')
-        if len(cols) > 5:
+        if len(cols) >= 6:
             name = cols[0].text.strip()
-            # Yahan hum GMP aur Subscription extract karenge
-            gmp_text = cols[4].text.strip() # Example column index
-            sub_text = cols[5].text.strip() # Example column index
+            # Ipoji column structure ke hisaab se GMP (Col 5) aur Sub (Col 6)
+            gmp_val = extract_number(cols[4].text)
+            sub_val = extract_number(cols[5].text)
             
             ipo_data = {
                 "name": name,
-                "gmp": extract_number(gmp_text),
-                "subs_total": extract_number(sub_text),
-                "status": "Live", # Defaulting to live for this scraper
-                "updated_at": "now()"
+                "gmp": gmp_val,
+                "subs_total": sub_val,
+                "status": "Live" if sub_val > 0 else "Upcoming"
             }
             ipo_list.append(ipo_data)
             
     return ipo_list
 
-def extract_number(text):
-    # Text se sirf numbers nikalne ka logic (e.g., "₹50 (20%)" -> 50)
-    import re
-    nums = re.findall(r'\d+', text.replace(',', ''))
-    return float(nums[0]) if nums else 0
-
-# Database Update Logic
 def update_db(data):
+    if not data:
+        print("⚠️ No data to update.")
+        return
+    
     for ipo in data:
-        supabase.table("ipos").upsert(ipo, on_conflict="name").execute()
-    print(f"✅ Updated {len(data)} IPOs from Ipoji")
+        try:
+            # Upsert logic: Name match karega toh update, nahi toh insert
+            supabase.table("ipos").upsert(ipo, on_conflict="name").execute()
+            print(f"✅ Synced: {ipo['name']}")
+        except Exception as e:
+            print(f"❌ Error syncing {ipo['name']}: {e}")
 
 if __name__ == "__main__":
-    data = scrape_ipoji_live()
-    update_db(data)
+    live_data = scrape_ipoji_live()
+    update_db(live_data)
+    print("\n🚀 Sab kuch set hai! Database check karo.")
