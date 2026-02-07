@@ -8,7 +8,7 @@ import os
 URL = "https://khnuyrhafzppbugebjdn.supabase.co"
 KEY = "sb_secret_SIb_8imA5DxLxNVK1srMDQ__xLolWEV"
 # Google Sheet CSV Link (Niche bataya hai kaise milega)
-SHEET_CSV_URL = "APNI_SHEET_KA_CSV_URL_YAHAN_DALO"
+SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTGp-0ECuXqbLmlDHfvKbfu0IqfFxqwnnEpA376aco74HqOuctesu17dUWPgYPVPkx6xUFS51RqhzmM/pubhtml"
 
 supabase = create_client(URL, KEY)
 
