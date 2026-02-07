@@ -66,8 +66,8 @@
 
 <script>
     // 1. Supabase Config
-    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-    const SUPABASE_KEY = 'YOUR_SUPABASE_KEY';
+    const SUPABASE_URL = 'https://khnuyrhafzppbugebjdn.supabase.co';
+    const SUPABASE_KEY = 'sb_secret_SIb_8imA5DxLxNVK1srMDQ__xLolWEV';
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // 2. AI Logic (Gemini API)
@@ -80,7 +80,7 @@
         status.innerText = "AI dimag laga raha hai... please wait...";
 
         // API Key aap yahan direct daal sakte hain (personal use ke liye admin panel hai)
-        const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY';
+        const GEMINI_API_KEY = 'AIzaSyAhzrCfmNSj5IvyZYwhTI9FIBEiuCdW8WI';
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
 
         const prompt = {
