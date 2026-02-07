@@ -17,7 +17,7 @@ if not URL or not KEY:
 supabase = create_client(URL, KEY)
 
 def scrape():
-    url = "https://ipowatch.in/"
+    url = "https://ipowala.in/"
     headers = {'User-Agent': 'Mozilla/5.0'}
     try:
         r = requests.get(url, headers=headers, timeout=15)
