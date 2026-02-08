@@ -2,126 +2,91 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Master Admin - Ipomoney.in</title>
+    <title>Ipomoney Admin - Relational</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: sans-serif; background: #eceff1; padding: 30px; }
-        .admin-card { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-        .section { margin-bottom: 25px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fafafa; }
-        .row { display: flex; gap: 20px; margin-bottom: 15px; }
-        .col { flex: 1; }
-        label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 13px; color: #555; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        textarea { height: 120px; }
-        .save-btn { background: #007bff; color: white; padding: 16px; width: 100%; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; }
-        h2 { margin-top: 0; color: #333; font-size: 1.4rem; }
+        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; }
+        .box { max-width: 800px; margin: auto; background: white; padding: 25px; border-radius: 10px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { background: #007bff; color: white; padding: 15px; width: 100%; border: none; cursor: pointer; font-size: 16px; font-weight: bold; }
+        h3 { border-bottom: 2px solid #007bff; padding-bottom: 5px; }
     </style>
 </head>
 <body>
-
-<div class="admin-card">
-    <h1>Ipomoney Master Entry</h1>
-
-    <div class="section">
-        <h2>1. Basic Setup</h2>
-        <div class="row">
-            <div class="col"><label>IPO Name</label><input type="text" id="name" placeholder="e.g. Tata Tech"></div>
-            <div class="col">
-                <label>Type</label>
-                <select id="ipo_type"><option value="Mainboard">Mainboard</option><option value="SME">SME</option></select>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col"><label>Year (YY)</label><input type="number" id="year" value="26"></div>
-            <div class="col"><label>Seq No</label><input type="number" id="sequence_no" placeholder="05"></div>
-            <div class="col"><label>Slug</label><input type="text" id="slug" placeholder="tata-tech-ipo"></div>
-        </div>
+<div class="box">
+    <h2>Ipomoney Master Entry</h2>
+    
+    <h3>1. Main Offer</h3>
+    <div class="grid">
+        <input type="text" id="company_name" placeholder="Company Name">
+        <input type="text" id="slug" placeholder="slug-url">
+        <select id="ipo_type"><option value="Mainboard">Mainboard</option><option value="SME">SME</option></select>
+        <input type="number" id="year" value="26">
+        <input type="number" id="sequence_no" placeholder="Seq No (01)">
+        <input type="number" id="issue_size" placeholder="Issue Size (Cr)">
     </div>
 
-    <div class="section">
-        <h2>2. Financials & Documents</h2>
-        <div class="row">
-            <div class="col"><label>Issue Size (Cr)</label><input type="text" id="issue_size"></div>
-            <div class="col"><label>Fresh Issue (Cr)</label><input type="text" id="fresh_issue"></div>
-            <div class="col"><label>OFS (Cr)</label><input type="text" id="ofs"></div>
-        </div>
-        <div class="row">
-            <div class="col"><label>RHP Link</label><input type="text" id="rhp_url"></div>
-            <div class="col"><label>Anchor Link</label><input type="text" id="anchor_url"></div>
-        </div>
+    <h3>2. Timeline</h3>
+    <div class="grid">
+        <input type="date" id="open_date">
+        <input type="date" id="close_date">
+        <input type="date" id="listing_date">
     </div>
 
-    <div class="section">
-        <h2>3. Content</h2>
-        <textarea id="business_operations" placeholder="Business Details..."></textarea><br><br>
-        <textarea id="promoters" placeholder="Promoters..."></textarea><br><br>
-        <textarea id="faqs" placeholder="FAQs..."></textarea>
+    <h3>3. Financials</h3>
+    <div class="grid">
+        <input type="text" id="fin_year" placeholder="FY 2025">
+        <input type="number" id="revenue" placeholder="Revenue (Cr)">
+        <input type="number" id="pat" placeholder="PAT (Profit Cr)">
     </div>
 
-    <div class="section">
-        <h2>4. Fundamentals</h2>
-        <div class="row">
-            <div class="col"><label>P/E</label><input type="text" id="pe"></div>
-            <div class="col"><label>ROE (%)</label><input type="text" id="roe"></div>
-            <div class="col"><label>ROCE (%)</label><input type="text" id="roce"></div>
-        </div>
-    </div>
-
-    <button class="save-btn" onclick="saveData()">🚀 Push to Live Website</button>
-    <p id="status" style="text-align:center; font-weight:bold; margin-top:15px;"></p>
+    <button onclick="saveData()">🚀 Push to All Tables</button>
+    <p id="msg" style="text-align:center; font-weight:bold;"></p>
 </div>
 
 <script>
-    // Variables pre-filled with your credentials
-    const SB_URL = 'https://khnuyrhafzppbugebjdn.supabase.co';
-    const SB_KEY = 'sb_publishable_JZ37y6ufdYYqJK9U4MK7Dg_doZJE6dp';
-    
-    // Rename variable from 'supabase' to 'client' to avoid Identifier conflict
-    const client = window.supabase.createClient(SB_URL, SB_KEY);
+    const client = window.supabase.createClient('https://khnuyrhafzppbugebjdn.supabase.co', 'sb_publishable_JZ37y6ufdYYqJK9U4MK7Dg_doZJE6dp');
 
     async function saveData() {
-        const status = document.getElementById('status');
-        status.innerText = "Connecting to Supabase...";
-        status.style.color = "blue";
-        
+        const msg = document.getElementById('msg');
+        msg.innerText = "Processing...";
+
         try {
-            const payload = {
-                name: document.getElementById('name').value,
+            // Table 1: ipo_offers
+            const { data: offer, error: e1 } = await client.from('ipo_offers').upsert({
+                company_name: document.getElementById('company_name').value,
+                slug: document.getElementById('slug').value,
                 ipo_type: document.getElementById('ipo_type').value,
                 year: parseInt(document.getElementById('year').value),
                 sequence_no: parseInt(document.getElementById('sequence_no').value),
-                slug: document.getElementById('slug').value,
-                issue_size: document.getElementById('issue_size').value,
-                fresh_issue: document.getElementById('fresh_issue').value,
-                ofs: document.getElementById('ofs').value,
-                business_operations: document.getElementById('business_operations').value,
-                promoters: document.getElementById('promoters').value,
-                rhp_url: document.getElementById('rhp_url').value,
-                anchor_url: document.getElementById('anchor_url').value,
-                faqs: document.getElementById('faqs').value,
-                fundamentals: {
-                    pe: document.getElementById('pe').value,
-                    roe: document.getElementById('roe').value,
-                    roce: document.getElementById('roce').value
-                }
-            };
+                issue_size_rs: parseFloat(document.getElementById('issue_size').value)
+            }, { onConflict: 'slug' }).select().single();
 
-            const { data, error } = await client.from('ipos').upsert(payload, { onConflict: 'slug' });
-            
-            if (error) {
-                console.error("Supabase Error:", error);
-                alert("Database Error: " + error.message);
-                status.innerText = "❌ Failed: " + error.message;
-                status.style.color = "red";
-            } else {
-                alert("✅ Success! IPO data pushed.");
-                status.innerText = "✅ IPO is Live!";
-                status.style.color = "green";
-            }
+            if (e1) throw e1;
+            const ipoId = offer.id;
+
+            // Table 2: ipo_timeline
+            await client.from('ipo_timeline').upsert({
+                ipo_id: ipoId,
+                open_date: document.getElementById('open_date').value || null,
+                close_date: document.getElementById('close_date').value || null,
+                listing_date: document.getElementById('listing_date').value || null
+            }, { onConflict: 'ipo_id' });
+
+            // Table 3: company_financials
+            await client.from('company_financials').upsert({
+                ipo_id: ipoId,
+                financial_year: document.getElementById('fin_year').value,
+                revenue: parseFloat(document.getElementById('revenue').value),
+                pat: parseFloat(document.getElementById('pat').value)
+            }, { onConflict: 'ipo_id' });
+
+            alert("✅ Data Saved in all Tables!");
+            msg.innerText = "Success!";
         } catch (err) {
-            console.error("JS Error:", err);
-            alert("System Error: " + err.message);
-            status.innerText = "❌ Error occurred.";
+            alert("Error: " + err.message);
+            msg.innerText = "Error: " + err.message;
         }
     }
 </script>
