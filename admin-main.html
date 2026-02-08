@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ipomoney - Master Admin</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; color: #333; }
+        .box { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .row { display: flex; gap: 15px; margin-bottom: 15px; }
+        .col { flex: 1; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        textarea { height: 100px; }
+        .sub-section { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #eee; }
+        .btn-save { background: #007bff; color: white; padding: 15px; width: 100%; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        h3 { margin-top: 0; color: #444; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h1>Master Admin - Ipomoney.in</h1>
+
+    <div class="sub-section">
+        <h3>Basic Information</h3>
+        <div class="row">
+            <div class="col"><label>IPO Name</label><input type="text" id="name"></div>
+            <div class="col">
+                <label>Type</label>
+                <select id="ipo_type"><option value="Mainboard">Mainboard</option><option value="SME">SME</option></select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col"><label>Year (YY)</label><input type="number" id="year" value="26"></div>
+            <div class="col"><label>Sequence No</label><input type="number" id="sequence_no" placeholder="04"></div>
+            <div class="col"><label>Slug</label><input type="text" id="slug" placeholder="fractal-analytics-ipo"></div>
+        </div>
+    </div>
+
+    <div class="sub-section">
+        <h3>Issue Details & Links</h3>
+        <div class="row">
+            <div class="col"><label>Issue Size (Cr)</label><input type="text" id="issue_size"></div>
+            <div class="col"><label>Fresh Issue (Cr)</label><input type="text" id="fresh_issue"></div>
+            <div class="col"><label>OFS (Cr)</label><input type="text" id="ofs"></div>
+        </div>
+        <div class="row">
+            <div class="col"><label>RHP URL</label><input type="text" id="rhp_url"></div>
+            <div class="col"><label>Anchor URL</label><input type="text" id="anchor_url"></div>
+        </div>
+    </div>
+
+    <div class="sub-section">
+        <h3>IPO Analysis Content</h3>
+        <label>Business & Operations</label>
+        <textarea id="business_operations" placeholder="Write about company's work..."></textarea>
+        <label>Promoters</label>
+        <textarea id="promoters" placeholder="Promoter names and holding details..."></textarea>
+    </div>
+
+    <div class="sub-section">
+        <h3>Fundamentals (Key Metrics)</h3>
+        <div class="row">
+            <div class="col"><label>P/E Ratio</label><input type="text" id="pe" placeholder="e.g. 25.4"></div>
+            <div class="col"><label>ROE (%)</label><input type="text" id="roe" placeholder="e.g. 15%"></div>
+            <div class="col"><label>ROCE (%)</label><input type="text" id="roce" placeholder="e.g. 18%"></div>
+            <div class="col"><label>Debt/Equity</label><input type="text" id="de" placeholder="e.g. 0.5"></div>
+        </div>
+    </div>
+
+    <div class="sub-section">
+        <h3>FAQs</h3>
+        <textarea id="faqs" placeholder="Q1: What is the lot size?&#10;A1: 50 Shares.&#10;&#10;Q2: When is the listing?&#10;A2: March 10th."></textarea>
+    </div>
+
+    <button class="btn-save" onclick="saveData()">🚀 Update Ipomoney.in</button>
+    <p id="msg" style="text-align:center; font-weight:bold;"></p>
+</div>
+
+<script>
+    const supabase = supabase.createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_KEY');
+
+    async function saveData() {
+        const msg = document.getElementById('msg');
+        msg.innerText = "Syncing with Supabase...";
+        msg.style.color = "orange";
+
+        try {
+            const payload = {
+                name: document.getElementById('name').value,
+                ipo_type: document.getElementById('ipo_type').value,
+                year: parseInt(document.getElementById('year').value),
+                sequence_no: parseInt(document.getElementById('sequence_no').value),
+                slug: document.getElementById('slug').value,
+                issue_size: document.getElementById('issue_size').value,
+                fresh_issue: document.getElementById('fresh_issue').value,
+                ofs: document.getElementById('ofs').value,
+                business_operations: document.getElementById('business_operations').value,
+                promoters: document.getElementById('promoters').value,
+                rhp_url: document.getElementById('rhp_url').value,
+                anchor_url: document.getElementById('anchor_url').value,
+                
+                // Fundamentals stored as JSON
+                fundamentals: {
+                    pe: document.getElementById('pe').value,
+                    roe: document.getElementById('roe').value,
+                    roce: document.getElementById('roce').value,
+                    de: document.getElementById('de').value
+                },
+                
+                // FAQs stored as Text (Can be parsed later)
+                faqs: document.getElementById('faqs').value
+            };
+
+            const { error } = await supabase.from('ipos').upsert(payload, { onConflict: 'slug' });
+            
+            if (error) throw error;
+            msg.innerText = "✅ IPO Live on Website!";
+            msg.style.color = "green";
+        } catch (e) {
+            msg.innerText = "❌ Error: " + e.message;
+            msg.style.color = "red";
+        }
+    }
+</script>
+</body>
+</html>
