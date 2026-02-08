@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPO Details - Ipomoney.in</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { font-size: 16px; }
+        body { font-family: sans-serif; line-height: 1.6; margin: 0; padding: 0; background: #f9f9f9; color: #333; transition: 0.3s; }
+        .container { max-width: 900px; margin: 20px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header-box { border-bottom: 2px solid #007bff; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .gmp-tag { background: #28a745; color: white; padding: 8px 15px; border-radius: 5px; font-weight: bold; }
+        .section { margin-bottom: 30px; }
+        h2 { color: #007bff; border-left: 5px solid #007bff; padding-left: 10px; margin-bottom: 15px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; background: #f1f1f1; padding: 20px; border-radius: 8px; }
+        .btn-group { display: flex; gap: 15px; margin-top: 20px; }
+        .btn { flex: 1; text-align: center; padding: 12px; border-radius: 5px; text-decoration: none; font-weight: bold; color: white; }
+        .btn-rhp { background: #dc3545; }
+        .btn-anchor { background: #6c757d; }
+        .faq-box { background: #fffbe6; padding: 15px; border: 1px solid #ffe58f; border-radius: 5px; white-space: pre-line; }
+    </style>
+</head>
+<body>
+
+<header style="background: #003366; color: white; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between;">
+    <span style="font-weight: bold; font-size: 20px; cursor:pointer;" onclick="location.href='index.html'">Ipomoney</span>
+    <div>
+        <button onclick="toggleTheme()" style="background: none; border: none; color: white; cursor: pointer;">🌗 Theme</button>
+    </div>
+</header>
+
+<div class="container">
+    <div class="header-box">
+        <div>
+            <h1 id="name">Loading IPO...</h1>
+            <p id="id-code" style="color:#666"></p>
+        </div>
+        <div class="gmp-tag" id="gmp">GMP: --</div>
+    </div>
+
+    <div class="section stats-grid">
+        <div><strong>Issue Size:</strong> <span id="size">--</span></div>
+        <div><strong>Type:</strong> <span id="type">--</span></div>
+        <div><strong>Fresh Issue:</strong> <span id="fresh">--</span></div>
+        <div><strong>OFS:</strong> <span id="ofs">--</span></div>
+        <div><strong>P/E Ratio:</strong> <span id="pe">--</span></div>
+        <div><strong>ROE:</strong> <span id="roe">--</span></div>
+    </div>
+
+    <div class="section">
+        <h2>Business & Operations</h2>
+        <p id="business"></p>
+    </div>
+
+    <div class="section">
+        <h2>Promoters</h2>
+        <p id="promoters"></p>
+    </div>
+
+    <div class="section">
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq-box" id="faqs"></div>
+    </div>
+
+    <div class="btn-group">
+        <a id="rhp-link" href="#" class="btn btn-rhp" target="_blank">📄 View RHP</a>
+        <a id="anchor-link" href="#" class="btn btn-anchor" target="_blank">⚓ View Anchor Book</a>
+    </div>
+</div>
+
+<script>
+    const supabase = supabase.createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_KEY');
+
+    async function loadDetails() {
+        const idParam = new URLSearchParams(window.location.search).get('id');
+        if (!idParam) return;
+
+        const year = parseInt(idParam.substring(0, 2));
+        const seq = parseInt(idParam.substring(2));
+
+        const { data, error } = await supabase.from('ipos').select('*').eq('year', year).eq('sequence_no', seq).single();
+        if (error || !data) return;
+
+        document.getElementById('name').innerText = data.name;
+        document.getElementById('id-code').innerText = `ID: ${idParam}`;
+        document.getElementById('gmp').innerText = `GMP: ${data.gmp}`;
+        document.getElementById('size').innerText = data.issue_size + " Cr";
+        document.getElementById('type').innerText = data.ipo_type;
+        document.getElementById('fresh').innerText = data.fresh_issue + " Cr";
+        document.getElementById('ofs').innerText = data.ofs + " Cr";
+        document.getElementById('business').innerText = data.business_operations;
+        document.getElementById('promoters').innerText = data.promoters;
+        document.getElementById('faqs').innerText = data.faqs || "No FAQs available.";
+        
+        // Fundamentals from JSON
+        const f = data.fundamentals || {};
+        document.getElementById('pe').innerText = f.pe || '--';
+        document.getElementById('roe').innerText = f.roe || '--';
+
+        if(data.rhp_url) document.getElementById('rhp-link').href = data.rhp_url;
+        if(data.anchor_url) document.getElementById('anchor-link').href = data.anchor_url;
+    }
+
+    function toggleTheme() {
+        const isDark = document.body.style.backgroundColor === 'rgb(34, 34, 34)';
+        document.body.style.backgroundColor = isDark ? '#f9f9f9' : '#222';
+        document.body.style.color = isDark ? '#333' : '#eee';
+        document.querySelector('.container').style.background = isDark ? 'white' : '#333';
+    }
+
+    loadDetails();
+</script>
+</body>
+</html>
