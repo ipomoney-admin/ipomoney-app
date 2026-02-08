@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Master Admin - Ipomoney.in</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: sans-serif; background: #eceff1; padding: 30px; }
         .admin-card { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
@@ -72,15 +72,17 @@
 </div>
 
 <script>
-    const SUPABASE_URL = 'https://khnuyrhafzppbugebjdn.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_JZ37y6ufdYYqJK9U4MK7Dg_doZJE6dp';
+    // Variables pre-filled with your credentials
+    const SB_URL = 'https://khnuyrhafzppbugebjdn.supabase.co';
+    const SB_KEY = 'sb_publishable_JZ37y6ufdYYqJK9U4MK7Dg_doZJE6dp';
     
-    // Explicit Client Creation
-    const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // Rename variable from 'supabase' to 'client' to avoid Identifier conflict
+    const client = window.supabase.createClient(SB_URL, SB_KEY);
 
     async function saveData() {
         const status = document.getElementById('status');
         status.innerText = "Connecting to Supabase...";
+        status.style.color = "blue";
         
         try {
             const payload = {
@@ -104,17 +106,17 @@
                 }
             };
 
-            const { data, error } = await _supabase.from('ipos').upsert(payload, { onConflict: 'slug' });
+            const { data, error } = await client.from('ipos').upsert(payload, { onConflict: 'slug' });
             
             if (error) {
                 console.error("Supabase Error:", error);
                 alert("Database Error: " + error.message);
                 status.innerText = "❌ Failed: " + error.message;
+                status.style.color = "red";
             } else {
-                alert("✅ Success! Data pushed to Supabase.");
+                alert("✅ Success! IPO data pushed.");
                 status.innerText = "✅ IPO is Live!";
-                // Reset form (Optional)
-                // location.reload(); 
+                status.style.color = "green";
             }
         } catch (err) {
             console.error("JS Error:", err);
