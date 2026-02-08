@@ -3,60 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ipomoney.in - IPO Listings & GMP</title>
+    <title>Ipomoney.in - Live IPO Listings</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { font-size: 16px; }
         body { font-family: sans-serif; background: #f4f7f6; margin: 0; padding: 0; transition: 0.3s; color: #333; }
-        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        header { background: #003366; color: white; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; min-height: 80vh; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; transition: 0.3s; position: relative; }
-        .card:hover { transform: translateY(-5px); }
-        .card h3 { margin: 0 0 10px 0; color: #007bff; }
-        .badge { position: absolute; top: 15px; right: 15px; background: #eee; padding: 5px 10px; border-radius: 5px; font-size: 12px; font-weight: bold; color: #333; }
-        .gmp { color: #28a745; font-weight: bold; font-size: 1.2rem; margin-top: 10px; display: block; }
-        footer { background: #333; color: white; padding: 40px 20px; margin-top: 50px; text-align: center; }
-        footer a { color: #ccc; text-decoration: none; font-size: 14px; }
-        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; max-width: 1000px; margin: auto; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; transition: 0.3s; position: relative; border: 1px solid #eee; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+        .card h3 { margin: 0 0 10px 0; color: #007bff; font-size: 1.2rem; }
+        .badge { position: absolute; top: 15px; right: 15px; background: #e3f2fd; color: #0d47a1; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .gmp { color: #2e7d32; font-weight: bold; font-size: 1.3rem; margin-top: 10px; display: block; }
+        .meta { font-size: 0.9rem; color: #666; margin-bottom: 5px; }
+        footer { background: #222; color: white; padding: 40px 20px; margin-top: 50px; text-align: center; }
+        footer a { color: #bbb; text-decoration: none; margin: 0 10px; font-size: 14px; }
+        #searchInput { padding: 8px 15px; border-radius: 20px; border: none; outline: none; width: 200px; }
+        .controls button { background: none; border: 1px solid white; color: white; padding: 4px 8px; cursor: pointer; border-radius: 4px; margin-left: 5px; }
     </style>
 </head>
 <body>
 
-<header id="main-header" style="background: #003366; color: white; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000;">
-    <div style="display: flex; align-items: center; gap: 15px;">
-        <span style="font-weight: bold; font-size: 20px; cursor:pointer;" onclick="location.href='index.html'">Ipomoney</span>
-        <div style="position: relative;">
-            <input type="text" id="searchInput" onkeyup="searchIPO()" placeholder="Search IPOs..." style="padding: 5px 30px 5px 10px; border-radius: 4px; border: none; outline: none;">
-        </div>
-    </div>
+<header>
     <div style="display: flex; align-items: center; gap: 20px;">
-        <button onclick="toggleTheme()" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px;">🌗</button>
-        <div style="display: flex; border: 1px solid white; border-radius: 4px; overflow: hidden;">
-            <button onclick="changeFontSize('small')" style="padding: 5px 10px; cursor: pointer;">A-</button>
-            <button onclick="changeFontSize('normal')" style="padding: 5px 10px; cursor: pointer;">A</button>
-            <button onclick="changeFontSize('large')" style="padding: 5px 10px; cursor: pointer;">A+</button>
-        </div>
+        <span style="font-size: 22px; font-weight: bold; cursor: pointer;" onclick="location.href='index.html'">Ipomoney</span>
+        <input type="text" id="searchInput" onkeyup="searchIPO()" placeholder="Search IPOs...">
+    </div>
+    <div class="controls">
+        <button onclick="toggleTheme()">🌗</button>
+        <button onclick="changeFontSize('small')">A-</button>
+        <button onclick="changeFontSize('normal')">A</button>
+        <button onclick="changeFontSize('large')">A+</button>
     </div>
 </header>
 
 <div class="container">
-    <h1 style="text-align: center;">🚀 Current IPO Listings</h1>
-    <div class="grid" id="ipo-container">Loading IPOs...</div>
+    <h1 style="text-align: center;">🚀 Active & Upcoming IPOs</h1>
+    <div class="grid" id="ipo-container">Loading...</div>
 </div>
 
 <footer>
-    <div class="footer-grid">
-        <div><h3>Ipomoney.in</h3><p>Your guide for IPO analysis.</p></div>
-        <div><h4>Quick Links</h4><a href="about.html">About Us</a><br><a href="contact.html">Contact Us</a></div>
-        <div><h4>Legal</h4><a href="disclaimer.html">Disclaimer</a><br><a href="privacy.html">Privacy Policy</a></div>
+    <div style="margin-bottom: 20px;">
+        <a href="about.html">About</a> | <a href="disclaimer.html">Disclaimer</a> | <a href="privacy.html">Privacy</a> | <a href="terms.html">Terms</a> | <a href="contact.html">Contact</a> | <a href="market-holidays.html">Holidays</a>
     </div>
-    <p style="margin-top:20px; font-size:12px; color:#888;">&copy; 2026 Ipomoney.in</p>
+    <p style="font-size: 12px; color: #777;">&copy; 2026 Ipomoney.in - All Rights Reserved.</p>
 </footer>
 
 <script>
-    const supabase = supabase.createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_KEY');
+    const supabase = supabase.createClient('https://khnuyrhafzppbugebjdn.supabase.co', 'sb_publishable_JZ37y6ufdYYqJK9U4MK7Dg_doZJE6dp');
 
-    async function loadHomeIPOs() {
+    async function loadIPOs() {
         const { data, error } = await supabase.from('ipos').select('*').order('created_at', { ascending: false });
         if (error) return;
         const container = document.getElementById('ipo-container');
@@ -69,18 +66,19 @@
             card.innerHTML = `
                 <span class="badge">${ipo.ipo_type}</span>
                 <h3>${ipo.name}</h3>
-                <div style="font-size:14px; color:#666;">Size: ${ipo.issue_size} Cr | ID: ${idCode}</div>
-                <span class="gmp">GMP: ${ipo.gmp || '0'}</span>
+                <div class="meta">Size: ₹${ipo.issue_size} Cr</div>
+                <div class="meta" style="color:#999">Code: ${idCode}</div>
+                <span class="gmp">GMP: ₹${ipo.gmp || '0'}</span>
             `;
             container.appendChild(card);
         });
     }
 
     function searchIPO() {
-        const input = document.getElementById('searchInput').value.toLowerCase();
+        const query = document.getElementById('searchInput').value.toLowerCase();
         document.querySelectorAll('.card').forEach(card => {
             const name = card.querySelector('h3').innerText.toLowerCase();
-            card.style.display = name.includes(input) ? "" : "none";
+            card.style.display = name.includes(query) ? "" : "none";
         });
     }
 
@@ -96,7 +94,7 @@
         document.documentElement.style.fontSize = s[size];
     }
 
-    loadHomeIPOs();
+    loadIPOs();
 </script>
 </body>
 </html>
